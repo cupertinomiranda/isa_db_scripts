@@ -1,0 +1,18 @@
+<%  
+  require 'rubygems'
+	$:.push(Dir.pwd)
+	require 'dbSetup' 
+
+	def to_hex(v)
+		"0x%02x" % v
+	end
+%>
+
+<%= Instruction.all.count %>
+<% Instruction.all.each do |inst| %>
+/* <%= inst.usage_example %> */
+/* <%= inst.opcode %> */
+{ "<%= inst.mnemonic.to_s.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, ... }
+
+<% end %>
+

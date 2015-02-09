@@ -1,1 +1,6 @@
-*.swp
+Gemfile.lock
+.*.swp
+
+*.db
+*.csv
+*.xlsw
