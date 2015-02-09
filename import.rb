@@ -36,8 +36,10 @@ end
 
 cleanDatabase
 
+line = 0
 data.each do |elem|
 	#print elem
+	line += 1
 
 	mnemonic = elem['Mnemonic']
 	if(mnemonic !~ /^\s*$/)
@@ -48,8 +50,11 @@ data.each do |elem|
 			opcode = "#{elem[n]}#{opcode}"
 		end
 
+		if(opcode =~ /^\s*$/) 
+			puts "Empty opcode for line #{line} with mnemonic #{mnemonic}"
+		end
+
 		# Create the instruction elements (Instruction)
-		puts "#{mnemonic} => #{opcode}"
 		instruction = Instruction.create({
 			mnemonic: elem['Mnemonic'],
 			opcode: opcode,
@@ -74,7 +79,6 @@ data.each do |elem|
 					})
 				end
 
-				puts operand_type
 
 				instruction_operand = InstructionOperand.new({
 					number: op_n

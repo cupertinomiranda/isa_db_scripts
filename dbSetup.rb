@@ -15,7 +15,7 @@ PWD=Dir.pwd
 DataMapper.setup(:default, "sqlite://#{PWD}/isa.db")
 Dir["#{Dir.pwd}/dbmodel/*.rb"].each do |file| 
 	require file.split('.')[0]
-	puts "Loading #{file}"
+	#puts "Loading #{file}"
 end
 DataMapper.finalize
 DataMapper.auto_upgrade!

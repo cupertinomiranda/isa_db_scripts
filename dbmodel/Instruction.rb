@@ -24,8 +24,10 @@ class Instruction
 	end
 
 	def fixed_opcode
-		# opcode.to_i(2) & mask.to_i(2)
-		opcode.to_i(2) & mask.to_i(2)
+		i = -1
+		mask_array = mask.chars
+		ret = opcode.split(//).map { |c| mask_array[i += 1] =~ /1/ ? c : '0' }.join('')
+		return ret
 	end
 
 	def usage_example

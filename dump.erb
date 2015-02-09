@@ -4,11 +4,10 @@
 	require 'dbSetup' 
 
 	def to_hex(v)
-		"0x%02x" % v
+		"0x%02x" % v.to_i(2)
 	end
 %>
 
-<%= Instruction.all.count %>
 <% Instruction.all.each do |inst| %>
 /* <%= inst.usage_example %> */
 /* <%= inst.opcode %> */
