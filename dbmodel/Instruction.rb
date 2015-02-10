@@ -4,16 +4,19 @@ class Instruction
   property :id,         Serial    # An auto-increment integer key
   property :mnemonic,   String    # A varchar type string, for short strings
   property :opcode,     String    # A text block, for longer string data.
-  property :class,      String    # A text block, for longer string data.
+  property :class, 	    String    # A text block, for longer string data.
   property :subclass,   String    # A text block, for longer string data.
 
-  property :flagZ, 		Boolean
-  property :flagN, 		Boolean
-  property :flagC, 		Boolean
-  property :flagV, 		Boolean
-  property :flagS, 		Boolean
+  #property :flagZ, 		Boolean
+  #property :flagN, 		Boolean
+  #property :flagC, 		Boolean
+  #property :flagV, 		Boolean
+  #property :flagS, 		Boolean
 
 	has n, :instruction_operands
+	has n, :instruction_flags, :through => Resource
+
+	has n, :conditional_cpu_instruction_relations
 
   def opcode_size
     self.opcode.length

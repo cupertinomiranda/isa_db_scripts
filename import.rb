@@ -1,20 +1,25 @@
 require 'rubygems'
 require 'smart_csv'
 
-$:.push(Dir.pwd)
-
-require 'dbSetup'
-
 exit 0 if ARGV.count < 1
 file = ARGV[0]
-
 puts "Reading #{file}"
+
+$:.push(Dir.pwd)
+require 'dbSetup'
+cleanDatabase
+
+
+def create_mask_from(opcode, letter)
+  letter = letter.downcase
+	opcode.chars.map { |c| (c =~ /#{letter}/i || c =~ /#{letter.upcase}/) ? c : 0 }.join('')
+end
+
 
 headers = {}
 data = []
-
-
 count = 0
+
 CSV.foreach(file) do |row|
 	if(count == 0)
 		i = 0		
@@ -34,18 +39,25 @@ CSV.foreach(file) do |row|
 	count += 1
 end
 
-cleanDatabase
+
+# Setting up CpuVersion table 
+cpus = headers.select { |k,v| v =~ /D: /}.map { |k,v| v.split(' ')[1..-1].join(' ') }
+cpus.each do |cpu|
+	CpuVersion.create(name: cpu);
+end
 
 line = 0
 data.each do |elem|
 	#print elem
 	line += 1
 
+	next if(line > 100)
+
+	flags = ['aa', 'cc', 'd', 'di', 'f', 'T', 'x', 'zz']	
 	mnemonic = elem['Mnemonic']
 	if(mnemonic !~ /^\s*$/)
 		opcode = ''
 		32.times do |n|
-			n -= 1
 			n = (n < 10) ? "0#{n}" : "#{n}"
 			opcode = "#{elem[n]}#{opcode}"
 		end
@@ -61,17 +73,48 @@ data.each do |elem|
 			class: elem['Class'],			
 			subclass: elem['Subclass'],
 
-			flagZ: elem['Flag: Z'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
-			flagN: elem['Flag: N'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
-			flagC: elem['Flag: C'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
-			flagV: elem['Flag: V'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
-			flagS: elem['Flag: S'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
+			#flagZ: elem['Flag: Z'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
+			#flagN: elem['Flag: N'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
+			#flagC: elem['Flag: C'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
+			#flagV: elem['Flag: V'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
+			#flagS: elem['Flag: S'] == 'Y' ? true : (elem['Flag:Z'] == 'N' ? false : nil),
 		})
+	
+		# Setting up the flags
+		flags.each do |flag|
+			if(elem[flag] && elem[flag] !~ /^\s*$/)
+				insn_flag = InstructionFlag.first(type: flag, mnemonic_patch: elem[flag])
+				insn_flag = InstructionFlag.new(type: flag, mnemonic_patch: elem[flag]) if(insn_flag.nil?) 
+				insn_flag.instructions <<= instruction
+				insn_flag.save!
+			end
+		end
+
+		# Setting up CpuVersion relations
+	  CpuVersion.all.each do |cpu|
+			available = elem["D: #{cpu.name}"]
+			if(available =~ /S/)
+				ConditionalCpuInstructionRelation.create(instruction: instruction, cpu_version: cpu)	
+			elsif(available =~ /U/)
+				# Do nothing
+			elsif(available =~ /O/)
+				condition = elem["C: #{cpu.name}"]
+				puts "Warning: Optional availability for instruction at line #{line} has empty condition for CPU version #{cpu.name}" if(condition.nil? || condition =~ /^\s*$/)
+				ConditionalCpuInstructionRelation.create(
+							condition: condition,
+							instruction: instruction, 
+							cpu_version: cpu
+				)	
+			else
+				puts "Warning: Instruction at line #{line} has no information on availability for '#{cpu.name}' version."
+			end
+		
+		end
 
 		# Setup Operand related tables (InstructionOperand, Operand)
 		3.times do |op_n|
-			op_name = elem["Opr#{op_n}"]
-			if(op_name !~ /^\s*$/)
+			op_name = elem["Opr#{op_n+1}"]
+			if(op_name && op_name !~ /^\s*$/)
 				operand_type = OperandType.first(name: op_name)
 				if(operand_type.nil?)
 					operand_type = OperandType.create({
@@ -79,10 +122,11 @@ data.each do |elem|
 					})
 				end
 
-
 				instruction_operand = InstructionOperand.new({
-					number: op_n
+					number: op_n,
+					
 				})
+				instruction_operand.set_mask(instruction.opcode, op_name.chars.first )
 				instruction_operand.operand_type = operand_type
 				instruction_operand.instruction = instruction
 				instruction_operand.save!

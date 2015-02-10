@@ -6,12 +6,52 @@
 	def to_hex(v)
 		"0x%02x" % v.to_i(2)
 	end
+
+	def condition(inst) 
+		ret = []
+		inst.conditional_cpu_instruction_relations.each do |rel|
+			ret <<= "ARC_OPCODE_#{rel.cpu_version.name.upcase.gsub(/ /, '_')}"
+		end
+
+		return ret.join(' | ')
+	end
+
+  def operands(inst)
+
+		# Rename the operand name
+		ret = inst.instruction_operands.map do |o| 
+			op = o.operand_type.name
+			op = "UIMM#{$1}" if(op =~ /u([0-9]+)/)
+			op = "UIMM#{$1}" if(op =~ /s([0-9]+)/)
+			op = "LIMM" if(op =~ /limm/)
+			op = "R#{$1.upcase}" if(op =~ /([abc])/)
+			op = "ZA" if(op =~ /^0$/)
+
+			op
+		end
+		
+		# Append "dup" to the operand if it is used more than once
+		repeated = []
+		ret = ret.map do |op|
+			if(repeated.find_index(op) != nil)
+				op = "#{op}dup"
+			end
+			repeated <<= op
+			op
+		end
+		return ret.join(', ')
+	end
+
+	def full_mnemonic(inst)
+		mnemonic_flags = inst.instruction_flags.map { |f| f.mnemonic_patch }
+		"#{inst.mnemonic.downcase}#{mnemonic_flags.join('')}"
+	end
 %>
 
 <% Instruction.all.each do |inst| %>
-/* <%= inst.usage_example %> */
+/* <%= full_mnemonic(inst) %> */
 /* <%= inst.opcode %> */
-{ "<%= inst.mnemonic.to_s.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, ... }
+{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }}
 
 <% end %>
 
