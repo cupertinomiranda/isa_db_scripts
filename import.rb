@@ -51,7 +51,7 @@ data.each do |elem|
 	#print elem
 	line += 1
 
-	next if(line > 100)
+  next if(line < 480 || line > 485)
 
 	flags = ['aa', 'cc', 'd', 'di', 'f', 'T', 'x', 'zz']	
 	mnemonic = elem['Mnemonic']
@@ -112,25 +112,31 @@ data.each do |elem|
 		end
 
 		# Setup Operand related tables (InstructionOperand, Operand)
+		operands = []
+
 		3.times do |op_n|
 			op_name = elem["Opr#{op_n+1}"]
-			if(op_name && op_name !~ /^\s*$/)
-				operand_type = OperandType.first(name: op_name)
-				if(operand_type.nil?)
-					operand_type = OperandType.create({
-						name: op_name
-					})
-				end
+			operands <<= op_name if(op_name && op_name !~ /^\s*$/)
+		end
 
-				instruction_operand = InstructionOperand.new({
-					number: op_n,
-					
+		op_n = 0
+		operands.each do |op_name|
+			operand_type = OperandType.first(name: op_name)
+			if(operand_type.nil?)
+				operand_type = OperandType.create({
+					name: op_name
 				})
-				instruction_operand.set_mask(instruction.opcode, op_name.chars.first )
-				instruction_operand.operand_type = operand_type
-				instruction_operand.instruction = instruction
-				instruction_operand.save!
 			end
+
+			instruction_operand = InstructionOperand.new({
+				number: op_n,
+			})
+			instruction_operand.set_mask(instruction.opcode, op_name.chars.first, operands )
+			instruction_operand.operand_type = operand_type
+			instruction_operand.instruction = instruction
+			instruction_operand.save!
+
+			op_n += 1
 		end
 	end
 

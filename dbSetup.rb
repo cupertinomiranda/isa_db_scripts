@@ -14,12 +14,13 @@ PWD = Dir.pwd
 db_file = ENV['DB_FILE'] || "#{PWD}/isa.db"
 
 DataMapper.setup(:default, "sqlite://#{db_file}")
+DataMapper::Model.raise_on_save_failure = true
 Dir["#{Dir.pwd}/dbmodel/*.rb"].each do |file| 
 	load file
 	#puts "Loading #{file}"
 end
 DataMapper.finalize
-DataMapper.auto_upgrade!
+#DataMapper.auto_upgrade!
 
 def cleanDatabase
 	#DataMapper.drop
