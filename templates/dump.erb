@@ -1,56 +1,71 @@
-<%  
+<%
   require 'rubygems'
-	load 'init.rb' 
+load 'init.rb'
 
-	def to_hex(v)
-		"0x%02x" % v.to_i(2)
-	end
+def to_hex(v)
+  "0x%08X" % v.to_i(2)
+end
 
-	def condition(inst) 
-		ret = []
-		inst.conditional_cpu_instruction_relations.each do |rel|
-			ret <<= "ARC_OPCODE_#{rel.cpu_version.name.upcase.gsub(/ /, '_')}"
-		end
+def condition(inst)
+  ret = []
+  inst.conditional_cpu_instruction_relations.each do |rel|
+    case rel.cpu_version.name
+    when "600"
+      ret <<= "ARC_OPCODE_ARC600"
+    when "700"
+      ret <<= "ARC_OPCODE_ARC700"
+    when "arcv2em 1.1"
+      ret <<= "ARC_OPCODE_ARCv2EM"
+    when "arcv2hs 1.1"
+      ret <<= "ARC_OPCODE_ARCv2HS"
+    end # The rest are ignored
+  end
 
-		return ret.join(' | ')
-	end
+  return ret.join(' | ')
+end
 
-  def operands(inst)
+def operands(inst)
 
-		# Rename the operand name
-		ret = inst.instruction_operands.map do |o| 
-			op = o.operand_type.name
-			op = "UIMM#{$1}" if(op =~ /u([0-9]+)/)
-			op = "UIMM#{$1}" if(op =~ /s([0-9]+)/)
-			op = "LIMM" if(op =~ /limm/)
-			op = "R#{$1.upcase}" if(op =~ /([abc])/)
-			op = "ZA" if(op =~ /^0$/)
+  # Rename the operand name
+  ret = inst.instruction_operands.map do |o|
+    op = o.assembler_name
+    op
+  end
 
-			op
-		end
-		
-		# Append "dup" to the operand if it is used more than once
-		repeated = []
-		ret = ret.map do |op|
-			if(repeated.find_index(op) != nil)
-				op = "#{op}dup"
-			end
-			repeated <<= op
-			op
-		end
-		return ret.join(', ')
-	end
+  # Append "dup" to the operand if it is used more than once
+  repeated = []
+  ret = ret.map do |op|
+    if(repeated.find_index(op) != nil)
+      op = "#{op}dup"
+    end
+    repeated <<= op
+    op
+  end
+  return ret.join(', ')
+end
 
-	def full_mnemonic(inst)
-		mnemonic_flags = inst.instruction_flags.map { |f| f.mnemonic_patch }
-		"#{inst.mnemonic.downcase}#{mnemonic_flags.join('')}"
-	end
+def full_mnemonic(inst)
+  mnemonic_flags = inst.instruction_flags.map { |f| f.mnemonic_patch }
+  mnemonic_operands = inst.instruction_operands.map { |f| f.operand_type.name }
+  "#{inst.mnemonic.downcase}#{mnemonic_flags.join('')} #{mnemonic_operands.join(',')}"
+end
+
+def flag(insn)
+  ret = insn.instruction_flags.map do |o|
+    op = o.mnemonic_patch.upcase.sub('<', "")
+    op = op.sub('.', "")
+    op = op.sub('>', "")
+    op = "C_#{op}"
+    op
+  end
+  if insn.instruction_flags.count == 0
+    ret = ["NULL"]
+  end
+
+  return ret.join(', ')
+end
 %>
-
 <% Instruction.all.each do |inst| %>
-/* <%= full_mnemonic(inst) %> */
-/* <%= inst.opcode %> */
-{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }}
-
+/* <%= full_mnemonic(inst) %> <%= inst.opcode %> */
+{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }, { <%= flag(inst) %> }}
 <% end %>
-
