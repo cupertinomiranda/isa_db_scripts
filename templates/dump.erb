@@ -27,10 +27,7 @@ end
 def operands(inst)
 
   # Rename the operand name
-  ret = inst.instruction_operands.map do |o|
-    op = o.assembler_name
-    op
-  end
+  ret = inst.instruction_operands.map { |o| o.assembler_name }
 
   # Append "dup" to the operand if it is used more than once
   repeated = []
@@ -51,21 +48,19 @@ def full_mnemonic(inst)
 end
 
 def flag(insn)
-  ret = insn.instruction_flags.map do |o|
-    op = o.mnemonic_patch.upcase.sub('<', "")
-    op = op.sub('.', "")
-    op = op.sub('>', "")
-    op = "C_#{op}"
-    op
+  ret = insn.instruction_flags.map do |o| 
+    nme = o.assembler_name
+    flpz = 0
+    flpz = insn.opcode.index('a') if (nme =~ /C_AA/)
+    flpz = insn.opcode.index('Z') if (nme =~ /C_ZZ/)
+    nme = "#{nme}#{flpz}" if (flpz != 0)
+    nme
   end
-  if insn.instruction_flags.count == 0
-    ret = ["NULL"]
-  end
-
+  ret = ["NULL"] if (insn.instruction_flags.count == 0)
   return ret.join(', ')
 end
-%>
-<% Instruction.all.each do |inst| %>
+ #Instruction.all(:order => [:mnemonic.asc]).each do |inst| 
+ Instruction.sort.each do |inst| %>
 /* <%= full_mnemonic(inst) %> <%= inst.opcode %> */
 { "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }, { <%= flag(inst) %> }}
 <% end %>

@@ -14,10 +14,10 @@ class InstructionOperand
 
     mask = opcode.chars.map do |c|
       if(letter =~ /[^01]/)
-	a = '1' if(c =~ /#{letter}/)
-	a = '2' if(c =~ /#{letter.upcase}/)
-	a = '3' if(use_next_letter && c =~ /#{next_letter}/)
-	a = '4' if(use_next_letter && c =~ /#{next_letter.upcase}/)
+      	a = '1' if(c =~ /#{letter}/)
+      	a = '2' if(c =~ /#{letter.upcase}/)
+      	a = '3' if(use_next_letter && c =~ /#{next_letter}/)
+      	a = '4' if(use_next_letter && c =~ /#{next_letter.upcase}/)
       end
       a || '0'
     end
@@ -44,17 +44,16 @@ class InstructionOperand
     nametype = "#{nametype}C" if ((nametype =~ /^Z$/) && number == 2)
 
     if (operand_type.simm?)
-      fbmsk = bit_replacement_mask.first_bit_with("1")
-      lngtmsk = bits_in_mask
+      #fbmsk = bit_replacement_mask.first_bit_with("1")
+      fbmsk = instruction.opcode.index(/[su]/)
       nametype = "#{nametype}_A16" if (bits_in_mask == (operand_type.size - 1))
       nametype = "#{nametype}_A32" if (bits_in_mask == (operand_type.size - 2))
       nametype = "#{nametype}_AXX" if (bits_in_mask < (operand_type.size - 2))
-      nametype = "#{nametype}_#{fbmsk}"
+      nametype = "#{nametype}_#{fbmsk}" 
     end
 
     nametype = "#{nametype}_S" if (!instruction.long?)
     return nametype
   end
-
 
 end
