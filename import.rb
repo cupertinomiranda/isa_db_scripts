@@ -51,7 +51,7 @@ data.each do |elem|
 	#print elem
 	line += 1
 
-  next if(line < 480 || line > 485)
+  #next if(line < 480 || line > 485)
 
 	flags = ['aa', 'cc', 'd', 'di', 'f', 'T', 'x', 'zz']	
 	mnemonic = elem['Mnemonic']

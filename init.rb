@@ -12,3 +12,4 @@ OperandType.all.each do |op|
 		BitReplacement.new(op, mask)	
 	end
 end
+
