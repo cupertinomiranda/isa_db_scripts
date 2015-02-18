@@ -15,7 +15,7 @@ class OperandType
   end
 
   def size
-    return $1.to_i	if(name =~ /([1-9][0-9]+)$/)
+    return $1.to_i	if(name =~ /(\d+)$/)
     return 0
   end
   def size_known?
