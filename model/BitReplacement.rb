@@ -26,17 +26,13 @@ class BitReplacement < Enumerator
 
 	def replacements
 		mask = replacement_mask.mask.split('')
-		print mask
 		symbol_used = ignore_bits
-		puts "BLA"
 		[1,2,3,4].each do |i|
 			loc = nil
 			size = 0
 			count = 0
 			mask.each do |v|
-				puts "#{i} == #{v}"
 				if(v =~ /#{i}/)
-					puts "HERE"
 					loc = count if(loc.nil?)
 					size += 1
 				end

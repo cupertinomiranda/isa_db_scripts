@@ -22,7 +22,11 @@ end
 DataMapper.finalize
 #DataMapper.auto_upgrade!
 
-def cleanDatabase
+def initialize_tables
+  ReplacementMask.initialize_table
+end
+
+def clean_database
 	#DataMapper.drop
 	DataMapper.auto_migrate!
 end

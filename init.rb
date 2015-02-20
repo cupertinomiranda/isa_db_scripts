@@ -2,8 +2,14 @@ require 'rubygems'
 
 load 'dbSetup.rb' 
 
+Dir["#{Dir.pwd}/parsers/*.rb"].each do |file| 
+  #puts "Loading #{file}"
+  load file
+end
+
 Dir["#{Dir.pwd}/model/*.rb"].each do |file| 
-	load file
+  #puts "Loading #{file}"
+  load file
 end
 
 # Generate bit replacements

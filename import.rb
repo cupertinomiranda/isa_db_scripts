@@ -7,7 +7,8 @@ puts "Reading #{file}"
 
 $:.push(Dir.pwd)
 require 'dbSetup'
-cleanDatabase
+clean_database
+initialize_tables
 
 
 def create_mask_from(opcode, letter)

@@ -8,6 +8,9 @@
 <% BitReplacement.each do |bit_repl| %>
 
 /* type = <%= bit_repl.name %> mask = <%= bit_repl.replacement_mask.mask %> */
+<% if bit_repl.replacement_mask.name != nil %>
+#define reloc_<%= bit_repl.replacement_mask.name %> insert_<%= bit_repl.name %>
+<% end %>
 \#ifndef INSERT_<%= bit_repl.name.upcase %>
 \#define INSERT_<%= bit_repl.name.upcase %>
 static unsigned 
