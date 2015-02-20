@@ -6,6 +6,10 @@ class Relocation < Enumerator
     @@container.each { |a| yield(a) }
   end
 
+  def self.all
+    @@container
+  end
+
   def initialize(string)
     data = string.split(/[\s\t]+/)
     if(data.count >= 5)
