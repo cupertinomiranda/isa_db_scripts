@@ -31,7 +31,7 @@ class BitReplacement < Enumerator
     mask = replacement_mask.mask.split('')
     mask.each do |v|
       if(v =~ /#{letter}/)
-	return count
+	     return count
       end
       count += 1
     end
@@ -42,7 +42,7 @@ class BitReplacement < Enumerator
     size = 0
     mask.each do |v|
       if(v =~ /#{letter}/)
-	size += 1
+	     size += 1
 	    end
     end
     return size
@@ -58,13 +58,13 @@ class BitReplacement < Enumerator
       size = size_with("#{i}")
 
       if(!loc.nil?)
-	opcode_size = mask.count
-	repl_mask = "0x%04x" % ((2**size) - 1)
-	loc = opcode_size - loc - size
+	     opcode_size = mask.count
+	     repl_mask = "0x%04x" % ((2**size) - 1)
+	     loc = opcode_size - loc - size
 
-	yield(symbol_used, loc, repl_mask)
+	     yield(symbol_used, loc, repl_mask)
 
-	symbol_used += size
+	     symbol_used += size
       end
     end
   end

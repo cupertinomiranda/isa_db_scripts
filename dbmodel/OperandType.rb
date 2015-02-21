@@ -8,18 +8,19 @@ class OperandType
 
   def linker_relocatable
     return true if name =~ /limm/
-    return true if name =~ /^u[0-9]/
-    return true if name =~ /^s[0-9]/
+    return true if name =~ /^u[0-9]+/
+    return true if name =~ /^s[0-9]+/
 
     return false
   end
 
   def size
     return $1.to_i	if(name =~ /(\d+)$/)
+    return 6 if (register?)
     return 0
   end
   def size_known?
-    return (size != nil)
+    return (size != 0)
   end
 
   def register?
@@ -32,6 +33,10 @@ class OperandType
 
   def simm?
     return !register? && !limm?
+  end
+  def is_signed?
+    return true if (name =~ /^s[0-9]+/)
+    return false    
   end
 
   def identifier
