@@ -1,0 +1,47 @@
+/* The operands table.
+
+   The format of the operands table is:
+
+   BITS SHIFT DEFAULT_RELOC FLAGS INSERT_FUN EXTRACT_FUN
+*/
+const struct arc_operand arc_operands[] =
+  {
+    /* The fields are bits, shift, insert, extract, flags */
+    /* The zero index is used to indicate end-of-list */
+#define UNUSED    0
+    { 0, 0, 0, 0, 0, 0 },
+<%
+  require 'rubygems'
+load 'init.rb'
+oldDef = "UNUSED"
+masksOut = Hash.new
+Instruction.all.each do |inst|
+	inst.instruction_operands.map do |o| 
+		name = o.assembler_name
+		if (!masksOut.has_key? (name))
+			masksOut[name] = 1	
+			bit_repl = o.bit_replacement_mask
+      if (o.operand_type.is_signed?) 
+        typer = ["ARC_OPERAND_SIGNED"]
+      elsif (o.operand_type.register?)
+        typer = ["ARC_OPERAND_IR"]
+      else           
+        typer = ["ARC_OPERAND_UNSIGNED"]
+      end 
+      case bit_repl.ignore_bits
+      when 1
+        typer.push("ARC_OPERAND_ALIGNED16")
+      when 2
+        typer.push("ARC_OPERAND_ALIGNED32")
+      end
+
+      if bit_repl.ignore_bits >0 
+        typer.push ("ARC_OPERAND_TRUNCATE")
+      end
+      %>
+/* <%= name %> mask = <%= o.replacement_mask.mask %> */
+#define <%= name %>       (<%= oldDef %> + 1) <%oldDef = name %>
+    {<%= o.operand_type.size%>, 0, 0, <%= typer.join(' | ') %>, insert_<%= name.downcase%>, extract_<%= name.downcase %>},
+<%		end
+	end
+end %>
