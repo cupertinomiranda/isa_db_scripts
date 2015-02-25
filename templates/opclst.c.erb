@@ -16,27 +16,27 @@ load 'init.rb'
 oldDef = "UNUSED"
 masksOut = Hash.new
 Instruction.all.each do |inst|
-	inst.instruction_operands.map do |o| 
+	inst.instruction_operands.map do |o|
 		name = o.assembler_name
 		if (!masksOut.has_key? (name))
-			masksOut[name] = 1	
+			masksOut[name] = 1
 			bit_repl = o.bit_replacement_mask
-      if (o.operand_type.is_signed?) 
-        typer = ["ARC_OPERAND_SIGNED"]
+      if (o.operand_type.is_signed?)
+	typer = ["ARC_OPERAND_SIGNED"]
       elsif (o.operand_type.register?)
-        typer = ["ARC_OPERAND_IR"]
-      else           
-        typer = ["ARC_OPERAND_UNSIGNED"]
-      end 
+	typer = ["ARC_OPERAND_IR"]
+      else
+	typer = ["ARC_OPERAND_UNSIGNED"]
+      end
       case bit_repl.ignore_bits
       when 1
-        typer.push("ARC_OPERAND_ALIGNED16")
+	typer.push("ARC_OPERAND_ALIGNED16")
       when 2
-        typer.push("ARC_OPERAND_ALIGNED32")
+	typer.push("ARC_OPERAND_ALIGNED32")
       end
 
-      if bit_repl.ignore_bits >0 
-        typer.push ("ARC_OPERAND_TRUNCATE")
+      if bit_repl.ignore_bits >0
+	typer.push ("ARC_OPERAND_TRUNCATE")
       end
       %>
 /* <%= name %> mask = <%= o.replacement_mask.mask %> */

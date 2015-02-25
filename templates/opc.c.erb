@@ -4,39 +4,39 @@ load 'init.rb'
 
 masksOut = Hash.new
 Instruction.all.each do |inst|
-	inst.instruction_operands.map do |o| 
+	inst.instruction_operands.map do |o|
 		name = o.assembler_name
 		if (!masksOut.has_key? (name))
-			masksOut[name] = 1	
+			masksOut[name] = 1
 			bit_repl = o.bit_replacement_mask %>
 #ifndef INSERT_<%= name %>
 #define INSERT_<%= name %>
-/* mask = <%= o.replacement_mask.mask %> 
+/* mask = <%= o.replacement_mask.mask %>
    insn = <%= inst.opcode %> */
 static unsigned
 insert_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
-  	int value ATTRIBUTE_UNUSED,
-  	const char **errmsg ATTRIBUTE_UNUSED)
+	int value ATTRIBUTE_UNUSED,
+	const char **errmsg ATTRIBUTE_UNUSED)
 {<% if(bit_repl.ignore_bits > 0) %>
   if(value & <%= "0x%02x" % ((2**bit_repl.ignore_bits) - 1) %>)
     *errmsg = _("Target address is not <%= 8*(2**bit_repl.ignore_bits)%>bit aligned.");<% end %>
 <% bit_repl.replacements do |symbol_used, loc, repl_mask| %>
-  	insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
+	insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
 
-  	return insn;
+	return insn;
 }
 #endif /* INSERT_<%= name %> */
 
 #ifndef EXTRACT_<%= name %>
 #define EXTRACT_<%= name %>
 /* mask = <%= o.replacement_mask.mask %> */
-static <%if (o.operand_type.is_signed?); typer = "int"; else typer = "unsigned" end %> <%= typer %>
+static int
 extract_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
-  	int *invalid ATTRIBUTE_UNUSED)
+	int *invalid ATTRIBUTE_UNUSED)
 {
-  <%= typer %> value = 0
+  <%= typer %> value = 0;
 <% bit_repl.replacements do |symbol_used, loc, repl_mask| %>
-  value |= ((inst >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;<% end %>
+  value |= ((insn >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;<% end %>
 <% if (o.operand_type.is_signed?) %>
   /* Extend the sign */
   int signbit = 1 << (<%= o.operand_type.size %> - 1);
