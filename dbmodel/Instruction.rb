@@ -42,24 +42,31 @@ class Instruction
     ret = self.mnemonic
   end
 
-  #compute the weight for each instruction. The GAS requires a particular 
+  #compute the weight for each instruction. The GAS requires a particular
   #order based on this wight (i.e. shorter immediates first, limm is last)
-  def weight 
+  def weight
     wgt = 0
+    cor0 = 1
+    cor1 = 0
+    if (self.class == "BRANCH" || self.class == "JUMP")
+      cor1 = 13
+      cor0 = -1
+    end
+
     self.instruction_operands.map do |o|
-      wgt += 1 if (o.operand_type.name =~ /[us]3/)
-      wgt += 2 if (o.operand_type.name =~ /u5/)
-      wgt += 3 if (o.operand_type.name =~ /u6/)
-      wgt += 4 if (o.operand_type.name =~ /[us]7/)
-      wgt += 5 if (o.operand_type.name =~ /[us]8/)
-      wgt += 6 if (o.operand_type.name =~ /s9/)
-      wgt += 7 if (o.operand_type.name =~ /[us]10/)
-      wgt += 8 if (o.operand_type.name =~ /s11/)
-      wgt += 9 if (o.operand_type.name =~ /s12/)
-      wgt +=10 if (o.operand_type.name =~ /s13/)
-      wgt +=11 if (o.operand_type.name =~ /s21/)
-      wgt +=12 if (o.operand_type.name =~ /s25/)
-      wgt +=20 if (o.operand_type.name =~ /limm/)
+      wgt += cor1 +  1 * cor0 if (o.operand_type.name =~ /[us]3/)
+      wgt += cor1 +  2 * cor0 if (o.operand_type.name =~ /u5/)
+      wgt += cor1 +  3 * cor0 if (o.operand_type.name =~ /u6/)
+      wgt += cor1 +  4 * cor0 if (o.operand_type.name =~ /[us]7/)
+      wgt += cor1 +  5 * cor0 if (o.operand_type.name =~ /[us]8/)
+      wgt += cor1 +  6 * cor0 if (o.operand_type.name =~ /s9/)
+      wgt += cor1 +  7 * cor0 if (o.operand_type.name =~ /[us]10/)
+      wgt += cor1 +  8 * cor0 if (o.operand_type.name =~ /s11/)
+      wgt += cor1 +  9 * cor0 if (o.operand_type.name =~ /s12/)
+      wgt += cor1 + 10 * cor0 if (o.operand_type.name =~ /s13/)
+      wgt += cor1 + 11 * cor0 if (o.operand_type.name =~ /s21/)
+      wgt += cor1 + 12 * cor0 if (o.operand_type.name =~ /s25/)
+      wgt += 20 if (o.operand_type.name =~ /limm/)
     end
 
     return wgt
@@ -71,6 +78,6 @@ class Instruction
     return ret if (ret != 0)
     return -1 if (self.weight < anOther.weight)
     return 1 if (self.weight > anOther.weight)
-    return 0   
+    return 0
   end
 end

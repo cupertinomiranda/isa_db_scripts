@@ -10,6 +10,7 @@ class OperandType
     return true if name =~ /limm/
     return true if name =~ /^u[0-9]+/
     return true if name =~ /^s[0-9]+/
+    #return true if name =~ /^w[0-9]+/
 
     return false
   end
@@ -36,7 +37,7 @@ class OperandType
   end
   def is_signed?
     return true if (name =~ /^s[0-9]+/)
-    return false    
+    return false
   end
 
   def identifier
@@ -53,10 +54,11 @@ class OperandType
 
   #Create the unique identifier for the assembler name
   def assembler_name
-    return "UIMM#{$1}" if(name =~ /u([0-9]+)/)
-    return "SIMM#{$1}" if(name =~ /s([0-9]+)/)
+    return "UIMM#{$1}" if (name =~ /u([0-9]+)/)
+    return "SIMM#{$1}" if (name =~ /s([0-9]+)/)
+    return "BLINK"     if (name.downcase == "blink")
     return "R#{$1.upcase}" if(name =~ /([abch])/)
     return "Z" if(name =~ /^0$/)
-    return name.upcase
+    return name.upcase # ILINKx, SP, GP, PCL
   end
 end
