@@ -23,9 +23,9 @@ count = 0
 
 CSV.foreach(file) do |row|
   if(count == 0)
-    i = 0		
-    row.each do |h| 
-      headers[i] = h; i += 1 
+    i = 0
+    row.each do |h|
+      headers[i] = h; i += 1
     end
   else
     i = 0
@@ -41,7 +41,7 @@ CSV.foreach(file) do |row|
 end
 
 
-# Setting up CpuVersion table 
+# Setting up CpuVersion table
 cpus = headers.select { |k,v| v =~ /D: /}.map { |k,v| v.split(' ')[1..-1].join(' ') }
 cpus.each do |cpu|
   CpuVersion.create(name: cpu);
@@ -52,9 +52,9 @@ data.each do |elem|
   #print elem
   line += 1
 
-  #next if(line < 480 || line > 485)
+  #next if(line < 0 || line > 485)
 
-  flags = ['aa', 'cc', 'd', 'di', 'f', 'T', 'x', 'zz']	
+  flags = ['aa', 'cc', 'd', 'di', 'f', 'T', 'x', 'zz']
   mnemonic = elem['Mnemonic']
   if(mnemonic !~ /^\s*$/)
     opcode = ''
@@ -63,7 +63,7 @@ data.each do |elem|
       opcode = "#{elem[n]}#{opcode}"
     end
 
-    if(opcode =~ /^\s*$/) 
+    if(opcode =~ /^\s*$/)
       puts "Empty opcode for line #{line} with mnemonic #{mnemonic}"
     end
 
@@ -140,7 +140,6 @@ data.each do |elem|
       op_n += 1
     end
   end
-
 
 end
 

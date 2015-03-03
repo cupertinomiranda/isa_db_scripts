@@ -1,56 +1,116 @@
-<%  
+<%
   require 'rubygems'
-	load 'init.rb' 
+load 'init.rb'
 
-	def to_hex(v)
-		"0x%02x" % v.to_i(2)
-	end
+def to_hex(v)
+  "0x%08X" % v.to_i(2)
+end
 
-	def condition(inst) 
-		ret = []
-		inst.conditional_cpu_instruction_relations.each do |rel|
-			ret <<= "ARC_OPCODE_#{rel.cpu_version.name.upcase.gsub(/ /, '_')}"
-		end
+def condition(inst)
+  ret = []
+  inst.conditional_cpu_instruction_relations.each do |rel|
+    case rel.cpu_version.name
+    when "600"
+      ret <<= "ARC_OPCODE_ARC600"
+    when "700"
+      ret <<= "ARC_OPCODE_ARC700"
+    when "arcv2em 1.1"
+      ret <<= "ARC_OPCODE_ARCv2EM"
+    when "arcv2hs 1.1"
+      ret <<= "ARC_OPCODE_ARCv2HS"
+    end # The rest are ignored
+  end
 
-		return ret.join(' | ')
-	end
+  ret = ["0"] if (ret.count == 0)
+  return ret.join(' | ')
+end
 
-  def operands(inst)
+def operands(inst)
 
-		# Rename the operand name
-		ret = inst.instruction_operands.map do |o| 
-			op = o.operand_type.name
-			op = "UIMM#{$1}" if(op =~ /u([0-9]+)/)
-			op = "UIMM#{$1}" if(op =~ /s([0-9]+)/)
-			op = "LIMM" if(op =~ /limm/)
-			op = "R#{$1.upcase}" if(op =~ /([abc])/)
-			op = "ZA" if(op =~ /^0$/)
+  brkMods =  {
+    "aex"      => [1, 1], #['','','[',']','',''],
+    "lr"       => [1, 1], #['','','[',']','',''],
+    "sr"       => [1, 1], #['','','[',']','',''],
+    "ldi"      => [1, 1], #['','','[',']','',''],
+    "st_s"     => [1, 2], #['','','[','','',']'],
+    "sth_s"    => [1, 2], #['','','[','','',']'],
+    "stb_s"    => [1, 2], #['','','[','','',']'],
+    "ld_s"     => [1, 2], #['','','[','','',']'],
+    "ld"       => [1, 2], #['','','[','','',']'],
+    "bi"       => [0, 0], #['[',']','','','',''],
+    "bih"      => [0, 0], #['[',']','','','',''],
+    "jeq_s"    => [0, 0], #['[',']','','','',''],
+    "jne_s"    => [0, 0], #['[',']','','','',''],
+    "j_s"      => [0, 0], #['[',']','','','',''],
+    "jl_s"     => [0, 0], #['[',']','','','',''],
+    "ldh_s"    => [1, 2], #['','','[','','',']'],
+    "ldd"      => [1, 2], #['','','[','','',']'],
+    "ldi_s"    => [1, 1], #['','','[',']','',''],
+    "st"       => [1, 2], #['','','[','','',']'],
+    "std"      => [1, 2], #['','','[','','',']'],
+    "scond"    => [1, 1], #['','','[',']','',''],
+    "prefetch" => [0, 2], #['[','','',']','',''],
+    }
 
-			op
-		end
-		
-		# Append "dup" to the operand if it is used more than once
-		repeated = []
-		ret = ret.map do |op|
-			if(repeated.find_index(op) != nil)
-				op = "#{op}dup"
-			end
-			repeated <<= op
-			op
-		end
-		return ret.join(', ')
-	end
+  # Rename the operand name
+#  ret = inst.instruction_operands.map { |o| o.assembler_name }
 
-	def full_mnemonic(inst)
-		mnemonic_flags = inst.instruction_flags.map { |f| f.mnemonic_patch }
-		"#{inst.mnemonic.downcase}#{mnemonic_flags.join('')}"
-	end
-%>
+  brko = -1
+  brkc = -1
+  if (brkMods[inst.mnemonic.downcase])
+    lst = brkMods[inst.mnemonic.downcase]
+    brko = lst[0]
+    brkc = lst[1]
+  end
+  ret = Array.new
+  inst.instruction_operands.each do |o|
+    if (brko == o.number.to_i)
+      ret <<= "BRAKET"
+       brko = -1
+    end
+    ret <<= o.assembler_name
+     if (brkc == o.number.to_i)
+       ret <<= "BRAKET"
+       brkc = -1
+     end
+  end
 
-<% Instruction.all.each do |inst| %>
-/* <%= full_mnemonic(inst) %> */
-/* <%= inst.opcode %> */
-{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }}
+  ret << "BRAKET" if (brkc >= 0)
 
+  # Append "dup" to the operand if it is used more than once
+  repeated = []
+  ret = ret.map do |op|
+    if(repeated.find_index(op) != nil)
+      op = "#{op}dup"
+    end
+    repeated <<= op
+    op
+  end
+  return ret.join(', ')
+end
+
+def full_mnemonic(inst)
+  mnemonic_flags = inst.instruction_flags.map { |f| f.mnemonic_patch }
+  mnemonic_operands = inst.instruction_operands.map { |f| f.operand_type.name }
+  "#{inst.mnemonic.downcase}#{mnemonic_flags.join('')} #{mnemonic_operands.join(',')}"
+end
+
+def flag(insn)
+  ret = insn.instruction_flags.map do |o|
+    nme = o.assembler_name
+    flpz = 0
+    flpz = insn.opcode.index('a') if (nme =~ /C_AA/)
+    flpz = insn.opcode.index('Z') if (nme =~ /C_ZZ/)
+    flpz = insn.opcode.index('D') if (nme =~ /C_DI/)
+    flpz = insn.opcode.index('X') if (nme =~ /C_X/)
+    nme = "#{nme}#{flpz}" if (flpz != 0)
+    nme
+  end
+  ret = ["0"] if (insn.instruction_flags.count == 0)
+  return ret.join(', ')
+end
+ #Instruction.all(:order => [:mnemonic.asc]).each do |inst|
+ Instruction.sort.each do |inst| %>
+/* <%= full_mnemonic(inst) %> <%= inst.opcode %> */
+{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }, { <%= flag(inst) %> }},
 <% end %>
-
