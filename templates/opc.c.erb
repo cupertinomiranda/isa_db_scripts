@@ -11,8 +11,8 @@
 <% if bit_repl.replacement_mask.name != nil %>
 #define reloc_<%= bit_repl.replacement_mask.name %> insert_<%= bit_repl.name %>
 <% end %>
-\#ifndef INSERT_<%= bit_repl.name.upcase %>
-\#define INSERT_<%= bit_repl.name.upcase %>
+#ifndef INSERT_<%= bit_repl.name.upcase %>
+#define INSERT_<%= bit_repl.name.upcase %>
 static unsigned 
 insert_<%= bit_repl.name %>(
   unsigned insn,
@@ -26,20 +26,20 @@ insert_<%= bit_repl.name %>(
 
   return insn;
 }
-\#endif /* INSERT_<%= bit_repl.name.upcase %> */ 
+#endif /* INSERT_<%= bit_repl.name.upcase %> */ 
 
-\#ifndef EXTRACT_<%= bit_repl.name.upcase %>
-\#define EXTRACT_<%= bit_repl.name.upcase %>
+#ifndef EXTRACT_<%= bit_repl.name.upcase %>
+#define EXTRACT_<%= bit_repl.name.upcase %>
 static int 
 extract_<%= bit_repl.name %>(
   unsigned insn ATTRIBUTE_UNUSED,
   int *invalid ATTRIBUTE_UNUSED) {
   /* mask = <%= bit_repl.replacement_mask.mask %> */
-  int value = 0
+  int value = 0;
 	<% bit_repl.replacements do |symbol_used, loc, repl_mask| %>
-  value |= ((inst >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;<% end %>
+  value |= ((insn >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;<% end %>
 
   return value;
 }
-\#endif /* EXTRACT_<%= bit_repl.name.upcase %> */ 
+#endif /* EXTRACT_<%= bit_repl.name.upcase %> */ 
 <% end %>

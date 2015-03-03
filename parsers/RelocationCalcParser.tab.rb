@@ -317,12 +317,12 @@ class RelocationCalc
   def to_c(r={})
     case @object[:type]
       when /binop/
-        return "(#{@object[:lhs].to_c(r)} #{@object[:name]} #{@object[:rhs].to_c(r)})"
+        return "( #{@object[:lhs].to_c(r)} #{@object[:name]} #{@object[:rhs].to_c(r)} )"
       when /uniop/
-        return "(#{@object[:name]}#{@object[:rhs].to_c(r)})"
+        return "( #{@object[:name]}#{@object[:rhs].to_c(r)} )"
       when /var/
         var_name = @object[:var].to_sym
-        puts "VAR_NAME= #{var_name}"
+        #puts "VAR_NAME= #{var_name}"
         return r[var_name] if r[var_name] != nil
         return @object[:var]
       when /number/

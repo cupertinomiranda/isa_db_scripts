@@ -4,15 +4,22 @@ load 'init.rb'
 
 replacements = {
   none: '0',
-  S: 'blabla'
+  S: 'blabla',
+  A: 'reloc_entry->addend',
+  B: 'base_address',
+  G: 'global_offset_table_address',
+  GOT: 'full_address_to_GOT',
+  L: 'PLT_entry_for_a_symbol',
+  P: 'input_section->output_offset',
+  S: 'symbol->value'
 }
 %>
 
 int 
-get_value_for_relocation_type(enum BLA type)
+get_value_for_relocation_type(asymbol *symbol, arelent *reloc_entry)
 { 
   int value = 0
-  switch(type) {
+  switch(reloc_entry->howto->type) {
 <% Relocation.each do |reloc| %>
     case <%= reloc.name %>:
       value = <%= reloc.calc.to_c(replacements) %>;

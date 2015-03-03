@@ -1,5 +1,6 @@
 OUTPUT_DIR = "#{Dir.pwd}/output"
 DB_FILE = "#{Dir.pwd}/db/isa.db"
+BINUTILS_SRC = ENV['BINUTILS_SRC']
 
 directory OUTPUT_DIR
 
@@ -7,6 +8,12 @@ namespace "gen" do
 	task :dump => [OUTPUT_DIR] do 
 		`erb dump.erb > "#{OUTPUT_DIR}/dump.c"`
 	end
+
+        task :binutils => [BINUTILS_SRC] do
+          `erb templates/reloc.def.erb > "#{BINUTILS_SRC}/include/elf/arc_reloc.def"`
+          `erb templates/reloc_value_type.h.erb > "#{BINUTILS_SRC}/include/elf/arc_reloc_type.h"`
+          `erb templates/opc.c.erb > "#{BINUTILS_SRC}/include/elf/arc_opc.c"`
+        end
 
 end
 
