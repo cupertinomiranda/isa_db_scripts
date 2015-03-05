@@ -1,6 +1,8 @@
 !!!
 %html
-	%head
-		%title Haml on Sinatra Example
-	%body
-		=yield
+  %head
+    %title Haml on Sinatra Example
+    %link{:rel => :stylesheet, :type => :"text/css", :href => "/stylesheets/application.css"}
+  %body
+    #content
+      =yield

@@ -35,7 +35,7 @@ class OperandType
   def simm?
     return !register? && !limm?
   end
-  def is_signed?
+  def signed?
     return true if (name =~ /^s[0-9]+/)
     return false
   end
@@ -61,4 +61,5 @@ class OperandType
     return "Z" if(name =~ /^0$/)
     return name.upcase # ILINKx, SP, GP, PCL
   end
+
 end

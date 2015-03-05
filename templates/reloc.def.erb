@@ -5,7 +5,7 @@ load 'init.rb'
 Relocation.each do |reloc| 
 %>
 ARC_RELOC_HOWTO(<%= reloc.name.slice(2, 200) %>, <%= reloc.value  %>, \
-                <%= reloc.replacement_mask.number_of_bits %>, reloc_<%= reloc.type_name %>, \
+                <%= reloc.replacement_mask.reloc_size %>, replace_<%= reloc.type_name %>, \
                 <%= reloc.complain_overflow %>, \
                 <%= reloc.calc.to_c %>)
 <% end %>

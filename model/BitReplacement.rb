@@ -26,46 +26,44 @@ class BitReplacement < Enumerator
     operand_type.assembler_name
   end
 
-  def first_bit_with(letter)
-    count = 0
-    mask = replacement_mask.mask.split('')
-    mask.each do |v|
-      if(v =~ /#{letter}/)
-	     return count
-      end
-      count += 1
-    end
-    return nil
-  end
-  def size_with(letter)
-    mask = replacement_mask.mask.split('')
-    size = 0
-    mask.each do |v|
-      if(v =~ /#{letter}/)
-	     size += 1
-	    end
-    end
-    return size
-  end
 
   def replacements
-    mask = replacement_mask.mask.split('')
-#    print mask
-    symbol_used = ignore_bits
-#    puts "BLA"
-    [1,2,3,4].each do |i|
-      loc = first_bit_with("#{i}")
-      size = size_with("#{i}")
+    replacement_mask.replacements(ignore_bits) do |s,l,r|
+      yield(s,l,r)
+    end
+  end
 
-      if(!loc.nil?)
-	     opcode_size = mask.count
-	     repl_mask = "0x%04x" % ((2**size) - 1)
-	     loc = opcode_size - loc - size
-
-	     yield(symbol_used, loc, repl_mask)
-
-	     symbol_used += size
+  def self.each_with_value_shift
+    BitReplacement.each do |bit_repl|
+      instructions = bit_repl.operand_type.instruction_operands.map { |iop| iop.instruction }
+      elems = bit_repl.operand_type.instruction_operands.uniq { |o| o.number }
+      elems.each do |iop|
+        yield(bit_repl, iop, instructions) 
       end
     end
+  end
+
+  def typer
+    typer = []
+    if operand_type.signed?
+      typer.push("ARC_OPERAND_SIGNED")
+    elsif operand_type.register?
+      typer.push("ARC_OPERAND_IR") 
+    else
+      typer.push("ARC_OPERAND_UNSIGNED")
+    end
+
+    case ignore_bits
+      when 1
+	typer.push("ARC_OPERAND_ALIGNED16")
+      when 2
+	typer.push("ARC_OPERAND_ALIGNED32")
+    end
+
+    if ignore_bits >0
+      typer.push ("ARC_OPERAND_TRUNCATE")
+    end
+
+    return typer
   end
 end

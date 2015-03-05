@@ -21,23 +21,7 @@ Instruction.all.each do |inst|
 		if (!masksOut.has_key? (name))
 			masksOut[name] = 1
 			bit_repl = o.bit_replacement_mask
-      if (o.operand_type.is_signed?)
-	typer = ["ARC_OPERAND_SIGNED"]
-      elsif (o.operand_type.register?)
-	typer = ["ARC_OPERAND_IR"]
-      else
-	typer = ["ARC_OPERAND_UNSIGNED"]
-      end
-      case bit_repl.ignore_bits
-      when 1
-	typer.push("ARC_OPERAND_ALIGNED16")
-      when 2
-	typer.push("ARC_OPERAND_ALIGNED32")
-      end
-
-      if bit_repl.ignore_bits >0
-	typer.push ("ARC_OPERAND_TRUNCATE")
-      end
+                        typer = bit_repl.typer
       %>
 /* <%= name %> mask = <%= o.replacement_mask.mask %> */
 #define <%= name %>       (<%= oldDef %> + 1) <%oldDef = name %>

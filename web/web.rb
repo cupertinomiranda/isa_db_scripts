@@ -8,7 +8,7 @@ $:.push("#{Dir.pwd}/../")
 require 'dbSetup'
  
 get '/' do
-	@instruction = Instruction.all
+  @instruction = Instruction.all
   haml :index
 end
 	   

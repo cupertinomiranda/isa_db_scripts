@@ -27,6 +27,14 @@ class Instruction
     opcode_size == 32
   end
 
+  def clean_opcode(replace = 'x')
+    opcode.split('').map{|c| c =~ /(0|1)/ ? c : replace}.join('')
+  end
+
+  def opcode_as_hex
+    "0x%08X" % clean_opcode('0').to_i(2)
+  end
+
   def mask
     opcode.gsub(/[01]/, '1').gsub(/[^1]/, '0')
   end

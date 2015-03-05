@@ -1,4 +1,25 @@
-- 4.times do |inst|
-  %h4
-    = inst
+%h1 Instructions
 
+%table
+  %thead
+    %tr
+      %td Mnemonic
+      %td Opcode
+      %td Opcode (HEX)
+      %td Operands
+    %tr
+      %td Mnemonic
+      %td Opcode
+      %td Opcode (HEX)
+      %td Operands
+  %tbody
+    -@instructions.each do |insn|
+      %tr
+        %td 
+          =insn.mnemonic
+        %td.monospaced
+          =insn.opcode
+        %td.monospaced
+          =insn.opcode_as_hex
+        %td 
+          =insn.instruction_operands

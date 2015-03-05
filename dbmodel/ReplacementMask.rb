@@ -7,6 +7,16 @@ class ReplacementMask
 
   has n, :instruction_operands
 
+  def size
+    mask.split('').count
+  end
+
+  def reloc_size
+    return 8 if size <= 8
+    return 16 if size <= 16
+    return 32 if size <= 32
+  end
+
   def number_of_bits
     mask.split('').select { |b| b != '0' }.count
   end
@@ -38,5 +48,48 @@ class ReplacementMask
     self.create_with_string("disp9s   0000000111111111")
 
     self.create_with_string("disp13s  0000011111111111")
+  end
+
+  def first_bit_with(letter)
+    count = 0
+    mask = self.mask.split('')
+    mask.each do |v|
+      if(v =~ /#{letter}/)
+	     return count
+      end
+      count += 1
+    end
+    return nil
+  end
+
+  def size_with(letter)
+    mask = self.mask.split('')
+    size = 0
+    mask.each do |v|
+      if(v =~ /#{letter}/)
+	     size += 1
+	    end
+    end
+    return size
+  end
+
+  def replacements(ignore_bits = 0)
+    mask = self.mask.split('')
+
+    symbol_used = ignore_bits
+    [1,2,3,4].each do |i|
+      loc = first_bit_with("#{i}")
+      size = size_with("#{i}")
+
+      if(!loc.nil?)
+        opcode_size = mask.count
+        repl_mask = "0x%04x" % ((2**size) - 1)
+        loc = opcode_size - loc - size
+        
+        yield(symbol_used, loc, repl_mask)
+        
+        symbol_used += size
+      end
+    end
   end
 end

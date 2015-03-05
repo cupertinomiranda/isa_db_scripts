@@ -1,15 +1,16 @@
 require 'rubygems'
 
-load 'dbSetup.rb'
+require 'dbSetup'
 
-<<<<<<< HEAD
-Dir["#{Dir.pwd}/parsers/*.rb"].each do |file| 
-  #puts "Loading #{file}"
+LIBROOT = ENV['LIBROOT']
+
+Dir["#{LIBROOT}/parsers/*.rb"].each do |file| 
+  puts "Loading #{file}"
   load file
 end
 
-Dir["#{Dir.pwd}/model/*.rb"].each do |file| 
-  #puts "Loading #{file}"
+Dir["#{LIBROOT}/model/*.rb"].each do |file| 
+  puts "Loading #{file}"
 
   load file
 end
