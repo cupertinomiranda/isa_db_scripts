@@ -62,4 +62,14 @@ class OperandType
     return name.upcase # ILINKx, SP, GP, PCL
   end
 
+  def test_op_name
+    return "0" if (name =~ /limm/)
+    return "0" if (name =~ /u([0-9]+)/)
+    return "0" if (name =~ /s([0-9]+)/)
+    return "BLINK"     if (name.downcase == "blink")
+    return "r0" if(name =~ /([abch])/)
+    return "0" if(name =~ /^0$/)
+    return name.downcase # ILINKx, SP, GP, PCL
+  end
+
 end

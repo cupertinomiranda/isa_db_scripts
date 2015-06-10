@@ -1,18 +1,14 @@
 require 'rubygems'
 
-require 'dbSetup'
+require_relative "dbSetup.rb"
 
-LIBROOT = ENV['LIBROOT']
-
-Dir["#{LIBROOT}/parsers/*.rb"].each do |file| 
-  puts "Loading #{file}"
-  load file
+project_root = File.dirname(File.absolute_path(__FILE__))
+Dir.glob(project_root + "/parsers/*.rb").each do |file| 
+  require file
 end
 
-Dir["#{LIBROOT}/model/*.rb"].each do |file| 
-  puts "Loading #{file}"
-
-  load file
+Dir.glob(project_root + "/model/*.rb").each do |file| 
+  require file
 end
 
 # Generate bit replacements

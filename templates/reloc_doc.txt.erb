@@ -1,0 +1,15 @@
+<% 
+  require 'rubygems'
+  load 'init.rb'
+
+  Relocation.each do |reloc| 
+  replacement_mask = reloc.replacement_mask %>
+-- <%= reloc.name %> --
+    replacement_mask = <%= replacement_mask.mask %>
+
+    Instructions => 
+    <% replacement_mask.instruction_operands.each do |io| 
+          inst = io.instruction
+          %>    <%= inst.mnemonic %> (op = <%= io.number %>) => <%= inst.opcode %> (<%= inst.opcode_as_hex %>)
+    <% end %>
+<% end %>

@@ -48,6 +48,8 @@ class ReplacementMask
     self.create_with_string("disp9s   0000000111111111")
 
     self.create_with_string("disp13s  0000011111111111")
+
+    self.create_with_string("disp9s1  0000022222200111")
   end
 
   def first_bit_with(letter)

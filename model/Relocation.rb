@@ -42,7 +42,7 @@ end
 
 
 # Generic
-Relocation.new("R_ARC_NONE          0x0   none      bitfield    none")
+#Relocation.new("R_ARC_NONE          0x0   none      bitfield    none")
 Relocation.new("R_ARC_8             0x1   bits8     bitfield    S+A")
 Relocation.new("R_ARC_16            0x2   bits16    bitfield    S+A")
 Relocation.new("R_ARC_24            0x3   bits24    bitfield    S+A")
@@ -96,6 +96,8 @@ Relocation.new("R_ARC_SECTOFF_ME_2  0x2a  word32    bitfield    ((S-SECTSTART)+A
 Relocation.new("R_ARC_SECTOFF_1     0x2b  word32    bitfield    ((S-SECTSTART)+A)>>1")
 Relocation.new("R_ARC_SECTOFF_2     0x2c  word32    bitfield    ((S-SECTSTART)+A)>>2")
 
+Relocation.new("R_ARC_SDA16_ST2     0x30  disp9s    signed      (S+A-_SDA_BASE_)>>2 (Dsiambiguation for several relocations)")
+
 # arcompact elf me reloc
 Relocation.new("R_ARC_PC32          0x32  word32    signed      S+A-P")
 
@@ -111,7 +113,25 @@ Relocation.new("R_ARC_JMP_SLOT      0x37  word32    signed      S")
 Relocation.new("R_ARC_RELATIVE      0x38  word32    signed      B+A")
 Relocation.new("R_ARC_GOTOFF        0x39  word32    signed      S+A-GOT")
 Relocation.new("R_ARC_GOTPC         0x3a  word32    signed      GOT+A-P")
+
+Relocation.new("R_ARC_S21W_PCREL_PLT         0x3c  disp21w    signed      (L+A-P)>>2")
+Relocation.new("R_ARC_S25H_PCREL_PLT         0x3d  disp25h    signed      (L+A-P)>>1")
+
+Relocation.new("R_ARC_TLS_DTPMOD    0x42  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF",-1),
+Relocation.new("R_ARC_TLS_DTPOFF    0x43  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF",-1),
+Relocation.new("R_ARC_TLS_TPOFF     0x44  word32    dont        0") # ,"R_ARC_TLS_TPOFF"),
+Relocation.new("R_ARC_TLS_GD_GOT    0x45  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_GD_GOT",-1),
+Relocation.new("R_ARC_TLS_GD_LD     0x46  word32    dont        0") # ,"R_ARC_TLS_GD_LD"),
+Relocation.new("R_ARC_TLS_GD_CALL   0x47  word32    dont        0") # ,"R_ARC_TLS_GD_CALL"),
+Relocation.new("R_ARC_TLS_IE_GOT    0x48  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_IE_GOT",-1),
+Relocation.new("R_ARC_TLS_DTPOFF_S9 0x49  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF_S9",-1),
+Relocation.new("R_ARC_TLS_LE_S9     0x4a  word32    dont        0") # , 0, 2, 9, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_S9",-1),
+Relocation.new("R_ARC_TLS_LE_32     0x4b  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_32",-1),
+
 Relocation.new("R_ARC_SPE_SECTOFF")
+
+Relocation.new("R_ARC_S25W_PCREL_PLT         0x4c  disp25w    signed      (L+A-P)>>2")
+Relocation.new("R_ARC_S21H_PCREL_PLT         0x4d  disp21h    signed      (L+A-P)>>1")
 
 # Missing ones 
 #  /* A 26 bit absolute branch, right shifted by 2.  */
