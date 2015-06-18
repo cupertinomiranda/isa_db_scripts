@@ -154,8 +154,15 @@ def create_database_with_csv(file)
         op_name = elem["Opr#{op_n+1}"]
         operands <<= op_name if(op_name && op_name !~ /^\s*$/)
       end
+
+      # Add opcode limm bits to instruction
+      if(operands.select { |op| op =~ /limm/ }.size > 0)
+        instruction.opcode += Array.new(32) { 'l' }.join('')
+        #puts instruction.opcode
+      end
   
       op_n = 0
+
       operands.each do |op_name|
         operand_type = OperandType.first(name: op_name)
         if(operand_type.nil?)
@@ -167,6 +174,7 @@ def create_database_with_csv(file)
         instruction_operand = InstructionOperand.new({
           number: op_n,
         })
+        opcode = instruction.opcode
         instruction_operand.set_mask(instruction.opcode, op_name.chars.first, operands )
         instruction_operand.operand_type = operand_type
         instruction_operand.instruction = instruction

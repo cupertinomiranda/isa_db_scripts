@@ -2,7 +2,7 @@ class ReplacementMask
   include DataMapper::Resource
 
   property :id,   Serial
-  property :mask, String
+  property :mask, String, :length => 128
   property :name, String
 
   has n, :instruction_operands
@@ -35,6 +35,9 @@ class ReplacementMask
     self.create_with_string("bits16   1111111111111111")
     self.create_with_string("bits24   111111111111111111111111")
     self.create_with_string("word32   11111111111111111111111111111111")
+
+    self.create_with_string("limms    000000000000000011111111111111111111111111111111")
+    self.create_with_string("limm     0000000000000000000000000000000011111111111111111111111111111111")
 
     self.create_with_string("disp21h  00000111111111102222222222000000")
     self.create_with_string("disp21w  00000111111111002222222222000000")

@@ -16,6 +16,7 @@ class OperandType
   end
 
   def size
+    return 32           if(name =~ /^limm~/)
     return $1.to_i	if(name =~ /(\d+)$/)
     return 6 if (register?)
     return 0
@@ -67,7 +68,10 @@ class OperandType
     return "0" if (name =~ /u([0-9]+)/)
     return "0" if (name =~ /s([0-9]+)/)
     return "BLINK"     if (name.downcase == "blink")
-    return "r0" if(name =~ /([abch])/)
+    return "r0" if(name =~ /([a])/)
+    return "r1" if(name =~ /([b])/)
+    return "r2" if(name =~ /([c])/)
+    return "r3" if(name =~ /([h])/)
     return "0" if(name =~ /^0$/)
     return name.downcase # ILINKx, SP, GP, PCL
   end

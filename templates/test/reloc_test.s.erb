@@ -9,7 +9,7 @@ def get_operands_for_label(label)
   operands = []
   @insn.instruction_operands.each do |op| 
     if(op.number == @operand_reloc_number)
-      operands.push(label)
+      operands.push("[@#{label}]")
     else
       operands.push(op.operand_type.test_op_name)
     end

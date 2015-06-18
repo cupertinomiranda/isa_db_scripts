@@ -1,6 +1,6 @@
 class Relocation < Enumerator
   @@container = []
-  attr_reader :name, :value, :calc, :complain_overflow
+  attr_reader :name, :type, :value, :calc, :complain_overflow
 
   def self.each
     @@container.each { |a| yield(a) }
@@ -74,14 +74,16 @@ Relocation.new("R_ARC_S13_PCREL     0x19  disp13s   signed      (S+A-P)>>2")
 Relocation.new("R_ARC_W             0x1a  word32    bitfield    (S+A)&~3 (word-align)")
 
 # arcompact elf me reloc
-Relocation.new("R_ARC_32_ME         0x1b  word32    signed      S+A (MES)")
+Relocation.new("R_ARC_32_ME         0x1b  limm      signed      S+A (MES)")
+# TODO: This is a test relocation
+Relocation.new("R_ARC_32_ME_S       0x69  limms     signed      S+A (MES)")
 
 # Unsupported
 Relocation.new("R_ARC_N32_ME        0x1c  word32    bitfield    S-A (MES)")
 Relocation.new("R_ARC_SECTOFF_ME    0x1d  word32    bitfield    (S-SECTSTART)+A (MES)")
 
 # arcompact elf me reloc
-Relocation.new("R_ARC_SDA32_ME      0x1e  word32    signed      (S+A)-_SDA_BASE_ (MES)")
+Relocation.new("R_ARC_SDA32_ME      0x1e  limm      signed      (S+A)-_SDA_BASE_ (MES)")
 
 # Unsupported
 Relocation.new("R_ARC_W_ME          0x1f  word32    bitfield    (S+A) & ~3 (word-aligned MES)")
