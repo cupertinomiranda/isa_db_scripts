@@ -18,6 +18,7 @@ class Relocation < Enumerator
       @type = data[2]
       @complain_overflow = data[3]
       @calc = RelocationCalcParser.new().parse(data[4])
+      @calc_string = data[4]
       @info = data[5] # Only informational no real use
 
       @@container <<= self
@@ -37,6 +38,10 @@ class Relocation < Enumerator
   end
   def type_name 
     return @type
+  end
+
+  def is_sda?
+    return @calc_string =~ /_SDA_BASE_/
   end
 end
 
@@ -98,7 +103,7 @@ Relocation.new("R_ARC_SECTOFF_ME_2  0x2a  word32    bitfield    ((S-SECTSTART)+A
 Relocation.new("R_ARC_SECTOFF_1     0x2b  word32    bitfield    ((S-SECTSTART)+A)>>1")
 Relocation.new("R_ARC_SECTOFF_2     0x2c  word32    bitfield    ((S-SECTSTART)+A)>>2")
 
-Relocation.new("R_ARC_SDA16_ST2     0x30  disp9s    signed      (S+A-_SDA_BASE_)>>2 (Dsiambiguation for several relocations)")
+Relocation.new("R_ARC_SDA16_ST2     0x30  disp9s1   signed      (S+A-_SDA_BASE_)>>2 (Dsiambiguation for several relocations)")
 
 # arcompact elf me reloc
 Relocation.new("R_ARC_PC32          0x32  word32    signed      S+A-P")

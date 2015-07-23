@@ -13,8 +13,10 @@ rule
       | stmt '+' stmt   { return RelocationCalc.new({type: 'binop', name: val[1],  lhs: val[0], rhs: val[2] }) }
       | stmt '*' stmt   { return RelocationCalc.new({type: 'binop', name: val[1],  lhs: val[0], rhs: val[2] }) }
       | stmt '/' stmt   { return RelocationCalc.new({type: 'binop', name: val[1],  lhs: val[0], rhs: val[2] }) }
+      | stmt '&' stmt   { return RelocationCalc.new({type: 'binop', name: val[1],  lhs: val[0], rhs: val[2] }) }
       | stmt BINOP stmt   { return RelocationCalc.new({type: 'binop', name: val[1],  lhs: val[0], rhs: val[2] }) }
-      | '-' stmt =UMINUS  { return RelocationCalc.new({type: 'uniop', name: 'minus',              rhs: val[1] }) }
+      | '-' stmt =UMINUS  { return RelocationCalc.new({type: 'uniop', name: val[0],               rhs: val[1] }) }
+      | '~' stmt =UMINUS  { return RelocationCalc.new({type: 'uniop', name: val[0],               rhs: val[1] }) }
       | UNIOP stmt        { return RelocationCalc.new({type: 'uniop', name: val[0],               rhs: val[1] }) }
       | leaf
 
@@ -23,6 +25,7 @@ rule
 
   leaf: VAR               { return RelocationCalc.new(type: 'var', var: val[0]) }
       | NUMBER            { return RelocationCalc.new(type: 'number', number: val[0]) }
+      | HEX_NUMBER        { return RelocationCalc.new(type: 'number', number: val[0]) }
       | '(' stmt ')'      { return val[1] }
   
 end
@@ -47,6 +50,8 @@ def parse(str)
         append = '('
       when /\A([a-zA-Z_][a-zA-Z0-9_]*)/
         @q.push [:VAR, $1]
+      when /\A0x([0-9a-fA-F])+/
+        @q.push [:HEX_NUMBER, $&.to_i(16)]
       when /\A\d+/
         @q.push [:NUMBER, $&.to_i]
       when /\A.|\n/o

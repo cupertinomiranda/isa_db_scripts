@@ -13,7 +13,7 @@ require 'ruby-progressbar'
 
 file_root = File.dirname(File.absolute_path(__FILE__))
 db_file = ENV['DB_FILE'] || "#{file_root}/isa.db"
-puts "db_file = #{db_file}"
+#puts "db_file = #{db_file}"
 
 DataMapper.setup(:default, "sqlite://#{db_file}")
 DataMapper::Model.raise_on_save_failure = true

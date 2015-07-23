@@ -22,7 +22,11 @@ replace_<%= repl_mask.name %> (unsigned insn,
 <% end %>
 #endif /* REPLACE_<%= repl_mask.name %> */
 <% end %>
+
+
+
 <%
+    #TODO: Fix this ... there is a lot of repeated functions being generated
 BitReplacement.each_with_value_shift do |bit_repl, o, instructions|
   name = o.assembler_name %>
 /* mask  = <%= o.replacement_mask.mask %>. */

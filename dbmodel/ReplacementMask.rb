@@ -11,10 +11,21 @@ class ReplacementMask
     mask.split('').count
   end
 
+  def reloc_mask
+    first = 0
+    last = mask.length
+    if(mask.length > 32)
+      first = mask.length - 32
+    end
+
+    return mask.split("")[first..last].join("")
+  end
+
   def reloc_size
     return 8 if size <= 8
     return 16 if size <= 16
     return 32 if size <= 32
+    return 32 # No relocs are bigger than 32, force anything bigger to be in 32 reloc
   end
 
   def number_of_bits
@@ -36,8 +47,8 @@ class ReplacementMask
     self.create_with_string("bits24   111111111111111111111111")
     self.create_with_string("word32   11111111111111111111111111111111")
 
-    self.create_with_string("limms    000000000000000011111111111111111111111111111111")
     self.create_with_string("limm     0000000000000000000000000000000011111111111111111111111111111111")
+    self.create_with_string("limms    000000000000000011111111111111111111111111111111")
 
     self.create_with_string("disp21h  00000111111111102222222222000000")
     self.create_with_string("disp21w  00000111111111002222222222000000")
@@ -57,7 +68,7 @@ class ReplacementMask
 
   def first_bit_with(letter)
     count = 0
-    mask = self.mask.split('')
+    mask = self.reloc_mask.split('')
     mask.each do |v|
       if(v =~ /#{letter}/)
 	     return count
@@ -68,7 +79,7 @@ class ReplacementMask
   end
 
   def size_with(letter)
-    mask = self.mask.split('')
+    mask = self.reloc_mask.split('')
     size = 0
     mask.each do |v|
       if(v =~ /#{letter}/)
@@ -79,7 +90,7 @@ class ReplacementMask
   end
 
   def replacements(ignore_bits = 0)
-    mask = self.mask.split('')
+    mask = self.reloc_mask.split('')
 
     symbol_used = ignore_bits
     [1,2,3,4].each do |i|

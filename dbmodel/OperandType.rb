@@ -50,7 +50,7 @@ class OperandType
   end
 
   def replacement_masks
-    instruction_operands.map { |iop| iop.replacement_mask }.uniq
+    instruction_operands.map { |iop| iop.replacement_mask }.uniq { |rp| rp.reloc_mask }
   end
 
   #Create the unique identifier for the assembler name
