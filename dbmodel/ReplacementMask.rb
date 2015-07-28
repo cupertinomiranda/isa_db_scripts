@@ -10,6 +10,12 @@ class ReplacementMask
   def size
     mask.split('').count
   end
+  def size_for_reloc
+    return 0 if size <= 8
+    return 1 if size <= 16
+    return 2 if size <= 32
+    return 2; # There are no relocs bigger then 32 bits
+  end
 
   def reloc_mask
     first = 0
@@ -26,6 +32,10 @@ class ReplacementMask
     return 16 if size <= 16
     return 32 if size <= 32
     return 32 # No relocs are bigger than 32, force anything bigger to be in 32 reloc
+  end
+
+  def bitsize 
+    return number_of_bits
   end
 
   def number_of_bits
