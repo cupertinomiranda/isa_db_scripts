@@ -125,15 +125,15 @@ Relocation.new("R_ARC_S21W_PCREL_PLT         0x3c  disp21w    signed      (L+A-P
 Relocation.new("R_ARC_S25H_PCREL_PLT         0x3d  disp25h    signed      (L+A-P)>>1")
 
 Relocation.new("R_ARC_TLS_DTPMOD    0x42  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF",-1),
-Relocation.new("R_ARC_TLS_DTPOFF    0x43  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF",-1),
 Relocation.new("R_ARC_TLS_TPOFF     0x44  word32    dont        0") # ,"R_ARC_TLS_TPOFF"),
 Relocation.new("R_ARC_TLS_GD_GOT    0x45  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_GD_GOT",-1),
 Relocation.new("R_ARC_TLS_GD_LD     0x46  word32    dont        0") # ,"R_ARC_TLS_GD_LD"),
 Relocation.new("R_ARC_TLS_GD_CALL   0x47  word32    dont        0") # ,"R_ARC_TLS_GD_CALL"),
 Relocation.new("R_ARC_TLS_IE_GOT    0x48  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_IE_GOT",-1),
-Relocation.new("R_ARC_TLS_DTPOFF_S9 0x49  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF_S9",-1),
-Relocation.new("R_ARC_TLS_LE_S9     0x4a  word32    dont        0") # , 0, 2, 9, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_S9",-1),
-Relocation.new("R_ARC_TLS_LE_32     0x4b  word32    dont        0") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_32",-1),
+Relocation.new("R_ARC_TLS_DTPOFF    0x43  word32    dont        0") #S-TLS_REL") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF",-1),
+Relocation.new("R_ARC_TLS_DTPOFF_S9 0x49  word32    dont        0") #S-TLS_REL") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_DTPOFF_S9",-1),
+Relocation.new("R_ARC_TLS_LE_S9     0x4a  word32    dont        0") #S+TCB_SIZE-TLS_REL") # , 0, 2, 9, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_S9",-1),
+Relocation.new("R_ARC_TLS_LE_32     0x4b  word32    dont        0") #S+TCB_SIZE-TLS_REL") # , 0, 2, 32, FALSE, 0, arcompact_elf_me_reloc, "R_ARC_TLS_LE_32",-1),
 
 Relocation.new("R_ARC_SPE_SECTOFF")
 

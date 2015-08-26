@@ -1,24 +1,29 @@
-#ifndef _(A)
-#define _(A) A
-#endif
+//#ifndef _(A)
+//#define _(A) A
+//#endif
 
 <%
   require 'rubygems'
   load 'init.rb'
 
+  def spaces(str)
+    return (1..str.size).map { " " }.join('')
+  end
+
 ReplacementMask.all.select { |r| r.name != nil }.each do |repl_mask|
  if repl_mask.name != nil %>
-/* mask  = <%= repl_mask.mask %>. */
+/* mask  = <%= repl_mask.mask %>.  */
 #ifndef REPLACE_<%= repl_mask.name %>
 #define REPLACE_<%= repl_mask.name %>
-static unsigned
+ATTRIBUTE_UNUSED static unsigned
 replace_<%= repl_mask.name %> (unsigned insn,
-        int value) {
-<% repl_mask.replacements do |symbol_used, loc, repl_mask| %>
-	insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
-
-	return insn;
-        }
+        <%= spaces(repl_mask.name) %>  int value ATTRIBUTE_UNUSED)
+{
+<% repl_mask.replacements do |symbol_used, loc, repl_mask| 
+  %>  insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;
+<% end %>
+  return insn;
+}
 <% end %>
 #endif /* REPLACE_<%= repl_mask.name %> */
 <% end %>
@@ -29,43 +34,43 @@ replace_<%= repl_mask.name %> (unsigned insn,
     #TODO: Fix this ... there is a lot of repeated functions being generated
 BitReplacement.each_with_value_shift do |bit_repl, o, instructions|
   name = o.assembler_name %>
-/* mask  = <%= o.replacement_mask.mask %>. */
-/* insns = <%= instructions.map { |insn| insn.mnemonic }.uniq.join(", ") %>. */
+/* mask  = <%= o.replacement_mask.mask %>.  */
+/* insns = <%= instructions.map { |insn| insn.mnemonic }.uniq.join(", ") %>.  */
 #ifndef INSERT_<%= name %>
 #define INSERT_<%= name %>
-static unsigned
+ATTRIBUTE_UNUSED static unsigned
 insert_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
-	int value ATTRIBUTE_UNUSED,
-	const char **errmsg ATTRIBUTE_UNUSED)
-{<% if(bit_repl.ignore_bits > 0) %>
-  if(value & <%= "0x%02x" % ((2**bit_repl.ignore_bits) - 1) %>)
-    *errmsg = _("Target address is not <%= 8*(2**bit_repl.ignore_bits)%>bit aligned.");<% end %>
-
-<% if bit_repl.replacement_mask.name %>
-        insn = replace_<%= bit_repl.replacement_mask.name %>(insn, value);
+       <%= spaces(name)  %>  int value ATTRIBUTE_UNUSED,
+       <%= spaces(name)  %>  const char **errmsg ATTRIBUTE_UNUSED)
+{
+<% if(bit_repl.ignore_bits > 0) 
+%>  if (value & <%= "0x%02x" % ((2**bit_repl.ignore_bits) - 1) %>)
+    *errmsg = "Target address is not <%= 8*(2**bit_repl.ignore_bits)%>bit aligned.";<% end %>
+<% if bit_repl.replacement_mask.name 
+%>  insn = replace_<%= bit_repl.replacement_mask.name %> (insn, value);
 <% else %>
-<% bit_repl.replacements do |symbol_used, loc, repl_mask| %>
-	insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
+<% bit_repl.replacements do |symbol_used, loc, repl_mask| 
+%>  insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
 <% end %>
-
-	return insn;
+  return insn;
 }
 #endif /* INSERT_<%= name %> */
 
 #ifndef EXTRACT_<%= name %>
 #define EXTRACT_<%= name %>
-static int
+ATTRIBUTE_UNUSED static int
 extract_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
-	int *invalid ATTRIBUTE_UNUSED)
+        <%= spaces(name)  %>  int *invalid ATTRIBUTE_UNUSED)
 {
   int value = 0;
-<% bit_repl.replacements do |symbol_used, loc, repl_mask| %>
-  value |= ((insn >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;<% end %>
-<% if (o.operand_type.signed?) %>
-  /* Extend the sign */
+<% bit_repl.replacements do |symbol_used, loc, repl_mask| 
+  %>  value |= ((insn >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;
+<% end %>
+<% if (o.operand_type.signed?) 
+%>  /* Extend the sign.  */
   int signbit = 1 << (<%= o.operand_type.size %> - 1);
-  value = (value ^ signbit) - signbit; <% end %>
-
+  value = (value ^ signbit) - signbit; 
+<% end %>
   return value;
 }
 #endif /* EXTRACT_<%= name %> */
