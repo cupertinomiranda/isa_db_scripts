@@ -175,7 +175,7 @@ def create_database_with_csv(file)
           number: op_n,
         })
         opcode = instruction.opcode
-        instruction_operand.set_mask(instruction.opcode, op_name.chars.first, operands )
+        instruction_operand.parse_and_set_mask(instruction.opcode, op_name.chars.first, operands )
         instruction_operand.operand_type = operand_type
         instruction_operand.instruction = instruction
         instruction_operand.save!

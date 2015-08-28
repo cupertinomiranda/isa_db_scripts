@@ -17,6 +17,11 @@ class ReplacementMask
     return 2; # There are no relocs bigger then 32 bits
   end
 
+  def mask_without_limm
+    return mask[0..(size-1-32)] if size > 32 && name.nil?
+    return mask
+  end
+
   def reloc_mask
     first = 0
     last = mask.length
@@ -40,6 +45,28 @@ class ReplacementMask
 
   def number_of_bits
     mask.split('').select { |b| b != '0' }.count
+  end
+  def is_empty?
+    return (number_of_bits == 0)
+  end
+
+  def replacements(ignore_bits)
+    mask = replacement_mask.mask.split('')
+    symbol_used = ignore_bits
+    [1,2,3,4].each do |i|
+      loc = first_bit_with("#{i}")
+      size = size_with("#{i}")
+
+      if(!loc.nil?)
+	     opcode_size = mask.count
+	     repl_mask = "0x%04x" % ((2**size) - 1)
+	     loc = opcode_size - loc - size
+
+	     yield(symbol_used, loc, repl_mask)
+
+	     symbol_used += size
+      end
+    end
   end
 
   def self.create_with_string(string)

@@ -28,28 +28,38 @@ end
 def operands(inst)
 
   brkMods =  {
-    "aex"      => [1, 1], #['','','[',']','',''],
-    "lr"       => [1, 1], #['','','[',']','',''],
-    "sr"       => [1, 1], #['','','[',']','',''],
-    "ldi"      => [1, 1], #['','','[',']','',''],
-    "st_s"     => [1, 2], #['','','[','','',']'],
-    "sth_s"    => [1, 2], #['','','[','','',']'],
-    "stb_s"    => [1, 2], #['','','[','','',']'],
-    "ld_s"     => [1, 2], #['','','[','','',']'],
-    "ld"       => [1, 2], #['','','[','','',']'],
-    "bi"       => [0, 0], #['[',']','','','',''],
-    "bih"      => [0, 0], #['[',']','','','',''],
-    "jeq_s"    => [0, 0], #['[',']','','','',''],
-    "jne_s"    => [0, 0], #['[',']','','','',''],
-    "j_s"      => [0, 0], #['[',']','','','',''],
-    "jl_s"     => [0, 0], #['[',']','','','',''],
-    "ldh_s"    => [1, 2], #['','','[','','',']'],
-    "ldd"      => [1, 2], #['','','[','','',']'],
-    "ldi_s"    => [1, 1], #['','','[',']','',''],
-    "st"       => [1, 2], #['','','[','','',']'],
-    "std"      => [1, 2], #['','','[','','',']'],
-    "scond"    => [1, 1], #['','','[',']','',''],
-    "prefetch" => [0, 2], #['[','','',']','',''],
+    "aex"      => [1, 1, 0], #['','','[',']','',''],
+    "ex"       => [1, 1, 0], #['','','[',']','',''],
+    "lr"       => [1, 1, 0], #['','','[',']','',''],
+    "sr"       => [1, 1, 0], #['','','[',']','',''],
+    "ldi"      => [1, 1, 0], #['','','[',']','',''],
+    "st_s"     => [1, 2, 0], #['','','[','','',']'],
+    "sth_s"    => [1, 2, 0], #['','','[','','',']'],
+    "stw_s"    => [1, 2, 0], #['','','[','','',']'],
+    "stb_s"    => [1, 2, 0], #['','','[','','',']'],
+    "ld_s"     => [1, 2, 0], #['','','[','','',']'],
+    "ld"       => [1, 2, 0], #['','','[','','',']'],
+    "bi"       => [0, 0, 0], #['[',']','','','',''],
+    "bih"      => [0, 0, 0], #['[',']','','','',''],
+    "jeq_s"    => [0, 0, 0], #['[',']','','','',''],
+    "jne_s"    => [0, 0, 0], #['[',']','','','',''],
+    "j_s"      => [0, 0, 0], #['[',']','','','',''],
+    "j"        => [0, 0, 1], #['[',']','','','',''],
+    "jl_s"     => [0, 0, 0], #['[',']','','','',''],
+    "jl"       => [0, 0, 1], #['[',']','','','',''],
+    "ldh_s"    => [1, 2, 0], #['','','[','','',']'],
+    "ldw_s"    => [1, 2, 0], #['','','[','','',']'],
+    "ldb_s"    => [1, 2, 0], #['','','[','','',']'],
+    "ldd"      => [1, 2, 0], #['','','[','','',']'],
+    "ldi_s"    => [1, 1, 0], #['','','[',']','',''],
+    "llock"    => [1, 1, 0], #['','','[',']','',''],
+    "llockd"   => [1, 1, 0], #['','','[',']','',''],
+    "st"       => [1, 2, 0], #['','','[','','',']'],
+    "std"      => [1, 2, 0], #['','','[','','',']'],
+    "scond"    => [1, 1, 0], #['','','[',']','',''],
+    "prefetch" => [0, 2, 0], #['[','','',']','',''],
+    "prefetchw"=> [0, 2, 0], #['[','','',']','',''],
+    "prealloc" => [0, 2, 0], #['[','','',']','',''],
     }
 
   # Rename the operand name
@@ -57,22 +67,32 @@ def operands(inst)
 
   brko = -1
   brkc = -1
+  exc  = -1
   if (brkMods[inst.mnemonic.downcase])
     lst = brkMods[inst.mnemonic.downcase]
     brko = lst[0]
     brkc = lst[1]
+    exc  = lst[2]
   end
   ret = Array.new
   inst.instruction_operands.each do |o|
     if (brko == o.number.to_i)
-      ret <<= "BRAKET"
-       brko = -1
+      if (exc == 1 && o.operand_type.register?)
+        ret <<= "BRAKET"
+      elsif (exc != 1)
+        ret <<= "BRAKET"
+      end
+      brko = -1
     end
     ret <<= o.assembler_name
-     if (brkc == o.number.to_i)
-       ret <<= "BRAKET"
-       brkc = -1
-     end
+    if (brkc == o.number.to_i)
+      if (exc == 1 && o.operand_type.register?)
+        ret <<= "BRAKET"
+      elsif (exc != 1)
+        ret <<= "BRAKET"
+      end
+      brkc = -1
+    end
   end
 
   ret << "BRAKET" if (brkc >= 0)
@@ -96,7 +116,7 @@ def full_mnemonic(inst)
 end
 
 def flag(insn)
-  ret = insn.instruction_flags.map do |o|
+  ret = insn.instruction_flags.sort.map do |o|
     nme = o.assembler_name
     flpz = 0
     flpz = insn.opcode.index('a') if (nme =~ /C_AA/)
@@ -112,5 +132,5 @@ end
  #Instruction.all(:order => [:mnemonic.asc]).each do |inst|
  Instruction.sort.each do |inst| %>
 /* <%= full_mnemonic(inst) %> <%= inst.opcode %> */
-{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, { <%= operands(inst) %> }, { <%= flag(inst) %> }},
+{ "<%= inst.mnemonic.downcase %>", <%= to_hex(inst.fixed_opcode) %>, <%= to_hex(inst.mask) %>, <%= condition(inst) %>, <%= inst.class.upcase %>, <%= inst.getsubclass %>, { <%= operands(inst) %> }, { <%= flag(inst) %> }},
 <% end %>

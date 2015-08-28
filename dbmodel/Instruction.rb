@@ -24,7 +24,7 @@ class Instruction
   end
 
   def long?
-    opcode_size == 32
+    opcode_size == 32 || opcode_size == 64
   end
 
   def clean_opcode(replace = 'x')
@@ -87,5 +87,10 @@ class Instruction
     return -1 if (self.weight < anOther.weight)
     return 1 if (self.weight > anOther.weight)
     return 0
+  end
+
+  def getsubclass
+    return "NONE" if (self.subclass.to_s.empty?)
+    return self.subclass.upcase
   end
 end

@@ -12,9 +12,9 @@ Dir.glob(project_root + "/model/*.rb").each do |file|
 end
 
 # Generate bit replacements
-OperandType.all.each do |op_type|
-  op_type.replacement_masks.each do |mask|
-    BitReplacement.new(op_type, mask)
-  end
-end
+#OperandType.all.each do |op_type|
+#  op_type.replacement_masks.each do |mask|
+#    BitReplacement.new(op_type, mask)
+#  end
+#end
 

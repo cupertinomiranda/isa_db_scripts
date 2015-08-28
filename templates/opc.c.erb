@@ -32,10 +32,16 @@ replace_<%= repl_mask.name %> (unsigned insn,
 
 <%
     #TODO: Fix this ... there is a lot of repeated functions being generated
-BitReplacement.each_with_value_shift do |bit_repl, o, instructions|
-  name = o.assembler_name %>
-/* mask  = <%= o.replacement_mask.mask %>.  */
-/* insns = <%= instructions.map { |insn| insn.mnemonic }.uniq.join(", ") %>.  */
+  BitReplacement.each_with_value_shift do |operand_type, data| 
+    name = data[:name]
+    mask = data[:mask]
+    repl_mask = data[:repl_mask]
+    ignore_bits = data[:ignore_bits]
+    verify_alignment = data[:verify_alignment]
+    use_replace_func = data[:use_replace_func]
+    typer = operand_type.signed? ? "int" : "unsigned"
+%>
+/* mask  = <%= mask %>.  */
 #ifndef INSERT_<%= name %>
 #define INSERT_<%= name %>
 ATTRIBUTE_UNUSED static unsigned
@@ -43,14 +49,16 @@ insert_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
        <%= spaces(name)  %>  int value ATTRIBUTE_UNUSED,
        <%= spaces(name)  %>  const char **errmsg ATTRIBUTE_UNUSED)
 {
-<% if(bit_repl.ignore_bits > 0) 
-%>  if (value & <%= "0x%02x" % ((2**bit_repl.ignore_bits) - 1) %>)
-    *errmsg = "Target address is not <%= 8*(2**bit_repl.ignore_bits)%>bit aligned.";<% end %>
-<% if bit_repl.replacement_mask.name 
-%>  insn = replace_<%= bit_repl.replacement_mask.name %> (insn, value);
+<% if(ignore_bits > 0 || verify_alignment != nil) 
+     alignement = verify_alignment || ignore_bits
+%>  if (value & <%= "0x%02x" % ((2**alignement) - 1) %>)
+    *errmsg = "Target address is not <%= 8*(2**ignore_bits)%>bit aligned.";<% end %>
+<% if use_replace_func 
+%>  insn = replace_<%= use_replace_func %> (insn, value);
 <% else %>
-<% bit_repl.replacements do |symbol_used, loc, repl_mask| 
-%>  insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;<% end %>
+<% repl_mask.replacements(ignore_bits) do |symbol_used, loc, repl_mask| 
+%>  insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;
+<% end %>
 <% end %>
   return insn;
 }
@@ -62,13 +70,13 @@ ATTRIBUTE_UNUSED static int
 extract_<%= name.downcase %> (unsigned insn ATTRIBUTE_UNUSED,
         <%= spaces(name)  %>  int *invalid ATTRIBUTE_UNUSED)
 {
-  int value = 0;
-<% bit_repl.replacements do |symbol_used, loc, repl_mask| 
+  <%= typer %> value = 0;
+<% repl_mask.replacements(ignore_bits) do |symbol_used, loc, repl_mask| 
   %>  value |= ((insn >> <%= loc %>) & <%= repl_mask %>) << <%= symbol_used %>;
 <% end %>
-<% if (o.operand_type.signed?) 
+<% if (operand_type.signed?) 
 %>  /* Extend the sign.  */
-  int signbit = 1 << (<%= o.operand_type.size %> - 1);
+  int signbit = 1 << (<%= operand_type.size %> - 1);
   value = (value ^ signbit) - signbit; 
 <% end %>
   return value;

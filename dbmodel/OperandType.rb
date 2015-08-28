@@ -6,6 +6,7 @@ class OperandType
 
   has n, :instruction_operands
 
+
   def linker_relocatable
     return true if name =~ /limm/
     return true if name =~ /^u[0-9]+/
@@ -76,4 +77,33 @@ class OperandType
     return name.downcase # ILINKx, SP, GP, PCL
   end
 
+  #def self.operand_type_for_iop(op_name, iop)
+  #  tmp = OperandType.new(name: op_name)
+
+  #  # Decide on operand_type name based on mask and other features
+  #  op_name = tmp.assembler_name
+  #  op_name = "#{op_name}A" if ((op_name =~ /^Z$/) && iop.number == 0)
+  #  op_name = "#{op_name}B" if ((op_name =~ /^Z$/) && iop.number == 1)
+  #  op_name = "#{op_name}C" if ((op_name =~ /^Z$/) && iop.number == 2)
+  #  op_name = "#{op_name}D" if (iop.double_reg? && tmp.register? && ((op_name !~ /^Z/) && op_name !~ /^W[0-9]+/))
+  #  
+  #  if (tmp.simm?)
+  #    #fbmsk = bit_replacement_mask.first_bit_with("1")
+  #    fbmsk = iop.instruction.opcode.index(/[su]/)
+  #    op_name = "#{op_name}_A16" if (iop.bits_in_mask == (tmp.size - 1))
+  #    op_name = "#{op_name}_A32" if (iop.bits_in_mask == (tmp.size - 2))
+  #    op_name = "#{op_name}_AXX" if (iop.bits_in_mask < (tmp.size - 2))
+  #    op_name = "#{op_name}_#{fbmsk}"
+  #  end
+  #  
+  #  op_name = "#{op_name}_S" if (!iop.instruction.long?)
+
+  #  operand_type = OperandType.first(name: op_name)
+  #  if(operand_type.nil?)
+  #    operand_type = OperandType.create({
+  #      name: op_name
+  #    })
+  #  end
+  #  return operand_type
+  #end
 end
