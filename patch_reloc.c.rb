@@ -28,12 +28,15 @@ IO.readlines("/tmp/#{filename}").each do |line|
     when /^--MARKER_ARC_RELOCS_BEGIN--$/
       inside = true
       f.puts(line)
+      count = 0
       reloc_names.each do |name| 
-        f.puts("ENUM")
+        f.puts("ENUM#{count == 0 ? '' : 'X'}")
         f.puts("  BFD_RELOC_#{name}")
-        f.puts("ENUMDOC")
-        f.puts("  BFD_RELOC_#{name} Arc relocation.")
+	count += 1
       end
+      f.puts("ENUMDOC")
+      f.puts("  ARC relocs.")
+
       f.puts("--MARKER_ARC_RELOCS_END--")
       inside = true
     when /^--MARKER_ARC_RELOCS_END--$/
