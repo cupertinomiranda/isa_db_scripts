@@ -106,6 +106,7 @@ Relocation.new("R_ARC_SECTOFF_2     0x2c  word32    bitfield    ((S-SECTSTART)+A
 Relocation.new("R_ARC_SDA16_ST2     0x30  disp9s1   signed      (S+A-_SDA_BASE_)>>2 (Dsiambiguation for several relocations)")
 
 # arcompact elf me reloc
+Relocation.new("R_ARC_32_PCREL      0x31  word32    signed      S+A-PDATA")
 Relocation.new("R_ARC_PC32          0x32  word32    signed      S+A-P")
 
 # Special
