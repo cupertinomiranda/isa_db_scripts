@@ -81,6 +81,7 @@ class RelocationCalc
 
 
   def self.parse(string)
+    puts "Parsing: #{string}"
     RelocationCalcParser.new.parse(string)
   end
 
@@ -105,6 +106,8 @@ class RelocationCalc
         return "( #{@object[:lhs].to_c(r)} #{@object[:name]} #{@object[:rhs].to_c(r)} )"
       when /uniop/
         return "( #{@object[:name]}#{@object[:rhs].to_c(r)} )"
+      when /func/
+        return "( #{@object[:name]} ( #{@object[:param].map {|p| p.to_c(r) }.join(",") } ) )"
       when /var/
         var_name = @object[:var].to_sym
         #puts "VAR_NAME= #{var_name}"
@@ -113,7 +116,7 @@ class RelocationCalc
       when /number/
         return "#{@object[:number]}"
       else
-        raise "Object type is invalid"
+        raise "Object type is invalid #{self}"
     end
     
   end

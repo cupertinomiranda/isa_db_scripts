@@ -7,6 +7,13 @@ class ReplacementMask
 
   has n, :instruction_operands
 
+  def generated_name
+    return name if name != nil 
+
+    return "REPL_#{size}_#{mask_as_hex}"
+
+  end
+
   def size
     mask.split('').count
   end
@@ -16,20 +23,34 @@ class ReplacementMask
     return 2 if size <= 32
     return 2; # There are no relocs bigger then 32 bits
   end
+  def size_for_read_write
+    return 8 if size_for_reloc == 0
+    return 16 if size_for_reloc == 1
+    return 32 if size_for_reloc == 2
+  end
 
+  def mask_for_read_write
+    n = 0
+    n = size_for_read_write - size if size <= 32
+    return "#{mask}#{ Array.new(n).map { |a| '0'}.join('') }"
+  end
   def mask_without_limm
-    return mask[0..(size-1-32)] if size > 32 && name.nil?
-    return mask
+    return mask_for_read_write[0..(size-1-32)] if size > 32 && name.nil?
+    return mask_for_read_write 
+  end
+  def mask_as_hex
+    tmp = mask_without_limm.split('').map { |c| c == '0' ? '0' : '1' }.join('')
+    "0x%02x" % tmp.to_i(2)
   end
 
   def reloc_mask
     first = 0
-    last = mask.length
-    if(mask.length > 32)
-      first = mask.length - 32
+    last = mask_for_read_write.length
+    if(mask_for_read_write.length > 32)
+      first = mask_for_read_write.length - 32
     end
 
-    return mask.split("")[first..last].join("")
+    return mask_for_read_write.split("")[first..last].join("")
   end
 
   def reloc_size
@@ -50,24 +71,24 @@ class ReplacementMask
     return (number_of_bits == 0)
   end
 
-  def replacements(ignore_bits)
-    mask = replacement_mask.mask.split('')
-    symbol_used = ignore_bits
-    [1,2,3,4].each do |i|
-      loc = first_bit_with("#{i}")
-      size = size_with("#{i}")
+  #def replacements(ignore_bits)
+  #  mask = replacement_mask.mask.split('')
+  #  symbol_used = ignore_bits
+  #  [1,2,3,4].each do |i|
+  #    loc = first_bit_with("#{i}")
+  #    size = size_with("#{i}")
 
-      if(!loc.nil?)
-	     opcode_size = mask.count
-	     repl_mask = "0x%04x" % ((2**size) - 1)
-	     loc = opcode_size - loc - size
+  #    if(!loc.nil?)
+  #           opcode_size = mask.count
+  #           repl_mask = "0x%04x" % ((2**size) - 1)
+  #           loc = opcode_size - loc - size
 
-	     yield(symbol_used, loc, repl_mask)
+  #           yield(symbol_used, loc, repl_mask)
 
-	     symbol_used += size
-      end
-    end
-  end
+  #           symbol_used += size
+  #    end
+  #  end
+  #end
 
   def self.create_with_string(string)
     data = string.split(/[\s\t]+/)

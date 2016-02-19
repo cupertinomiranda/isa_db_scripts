@@ -16,9 +16,9 @@ ReplacementMask.all.select { |r| r.name != nil }.each do |repl_mask|
 #ifndef REPLACE_<%= repl_mask.name %>
 #define REPLACE_<%= repl_mask.name %>
 ATTRIBUTE_UNUSED static unsigned
-replace_<%= repl_mask.name %> (unsigned insn,
-        <%= spaces(repl_mask.name) %>  int value ATTRIBUTE_UNUSED)
+replace_<%= repl_mask.name %> (unsigned insn, int value ATTRIBUTE_UNUSED)
 {
+  insn = insn & ~<%= repl_mask.mask_as_hex %>;
 <% repl_mask.replacements do |symbol_used, loc, repl_mask| 
   %>  insn |= ((value >> <%= symbol_used %>) & <%= repl_mask %>) << <%= loc %>;
 <% end %>

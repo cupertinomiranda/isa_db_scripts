@@ -38,6 +38,9 @@ class Instruction
   def mask
     opcode.gsub(/[01]/, '1').gsub(/[^1]/, '0')
   end
+  def mask_as_hex
+    "0x%08X" % mask.to_i(2)
+  end
 
   def fixed_opcode
     i = -1
