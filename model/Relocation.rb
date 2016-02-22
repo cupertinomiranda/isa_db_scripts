@@ -70,10 +70,11 @@ Relocation.new("R_ARC_SDA32         0x12  word32    signed      ME((S+A)-_SDA_BA
 Relocation.new("R_ARC_SDA_LDST      0x13  disp9ls   signed      ME((S+A-_SDA_BASE_)) (s9 range)")
 Relocation.new("R_ARC_SDA_LDST1     0x14  disp9ls   signed      ME((S+A-_SDA_BASE_)>>1) (s10 range)")
 Relocation.new("R_ARC_SDA_LDST2     0x15  disp9ls   signed      ME((S+A-_SDA_BASE_)>>2) (s11 range)")
-Relocation.new("R_ARC_SDA16_LD      0x16  disp9s    signed      ME((S+A-_SDA_BASE_)) (s9 range)")
-Relocation.new("R_ARC_SDA16_LD1     0x17  disp9s    signed      ME((S+A-_SDA_BASE_)>>1) (s10 range)")
-Relocation.new("R_ARC_SDA16_LD2     0x18  disp9s    signed      ME((S+A-_SDA_BASE_)>>2) (s11 range)")
-Relocation.new("R_ARC_S13_PCREL     0x19  disp13s   signed      ME((S+A-P)>>2)")
+# Short instructions should no be marked as ME
+Relocation.new("R_ARC_SDA16_LD      0x16  disp9s    signed      (S+A-_SDA_BASE_) (s9 range)") 
+Relocation.new("R_ARC_SDA16_LD1     0x17  disp9s    signed      (S+A-_SDA_BASE_)>>1 (s10 range)")
+Relocation.new("R_ARC_SDA16_LD2     0x18  disp9s    signed      (S+A-_SDA_BASE_)>>2 (s11 range)")
+Relocation.new("R_ARC_S13_PCREL     0x19  disp13s   signed      (S+A-P)>>2)"
 
 # Unsupported
 Relocation.new("R_ARC_W             0x1a  word32    bitfield    (S+A)&~3 (word-align)")
