@@ -122,6 +122,8 @@ class ReplacementMask
     self.create_with_string("disp13s  0000011111111111")
 
     self.create_with_string("disp9s1  0000022222200111")
+
+    self.create_with_string("disp12s  00000000000000000000111111222222")
   end
 
   def first_bit_with(letter)

@@ -74,7 +74,7 @@ Relocation.new("R_ARC_SDA_LDST2     0x15  disp9ls   signed      ME((S+A-_SDA_BAS
 Relocation.new("R_ARC_SDA16_LD      0x16  disp9s    signed      (S+A-_SDA_BASE_) (s9 range)") 
 Relocation.new("R_ARC_SDA16_LD1     0x17  disp9s    signed      (S+A-_SDA_BASE_)>>1 (s10 range)")
 Relocation.new("R_ARC_SDA16_LD2     0x18  disp9s    signed      (S+A-_SDA_BASE_)>>2 (s11 range)")
-Relocation.new("R_ARC_S13_PCREL     0x19  disp13s   signed      (S+A-P)>>2)"
+Relocation.new("R_ARC_S13_PCREL     0x19  disp13s   signed      ((S+A-P)>>2)")
 
 # Unsupported
 Relocation.new("R_ARC_W             0x1a  word32    bitfield    (S+A)&~3 (word-align)")
@@ -103,6 +103,8 @@ Relocation.new("R_ARC_SECTOFF_ME_1  0x29  word32    bitfield    ME(((S-SECTSTART
 Relocation.new("R_ARC_SECTOFF_ME_2  0x2a  word32    bitfield    ME(((S-SECTSTART)+A)>>2) (MES)")
 Relocation.new("R_ARC_SECTOFF_1     0x2b  word32    bitfield    ((S-SECTSTART)+A)>>1")
 Relocation.new("R_ARC_SECTOFF_2     0x2c  word32    bitfield    ((S-SECTSTART)+A)>>2")
+
+Relocation.new("R_ARC_SDA_12	    0x2d  disp12s   signed      (S+A-_SDA_BASE_)")
 
 Relocation.new("R_ARC_SDA16_ST2     0x30  disp9s1   signed      (S+A-_SDA_BASE_)>>2 (Dsiambiguation for several relocations)")
 
